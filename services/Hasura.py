@@ -1,4 +1,4 @@
-import json, configparser
+import json, configparser, requests
 from io import BytesIO
 
 config = configparser.ConfigParser()
@@ -12,37 +12,29 @@ def process(name, query, variables: dict = {}):
     # # c = pycurl.Curl()
     # c.setopt(c.URL, endpoint)
 
-    # headers = [
-    #     'content-type: application/json',
-    #     f'x-hasura-admin-secret: {secret}'
-    # ]
+    headers = {
+        'content-type': 'application/json',
+        'x-hasura-admin-secret': secret
+    }
 
-    # data = {
-    #     "operationName": name,
-    #     "query": query,
-    #     "variables": variables
-    # }
-    
-    # c.setopt(pycurl.HTTPHEADER, headers)
-    # c.setopt(pycurl.POST, 1)
-    # c.setopt(pycurl.POSTFIELDS, json.dumps(data))
-    # c.setopt(c.WRITEDATA, data_response)
-    # c.perform()
-    # status_code = c.getinfo(c.RESPONSE_CODE)
-    # c.close()
+    data = {
+        "operationName": name,
+        "query": query,
+        "variables": variables
+    }
+    response = requests.post(endpoint, headers = headers, data=json.dumps(data))
+    status_code = response.status_code
+    res = response.json()
 
-    # if status_code != 200:
-    #     return {
-    #         'status': False,
-    #         'message': "Đã có lỗi từ Hasura"
-    #     }
-
-    # get_body = data_response.getvalue()
-    # res = json.loads(get_body.decode('utf8'))
+    if status_code != 200:
+        return {
+            'status': False,
+            'message': "Đã có lỗi từ Hasura"
+        }
 
     return {
         'status': True,
-        # 'data': res['data']
+        'data': res['data']
     }
 
 if __name__ == "__main__":
