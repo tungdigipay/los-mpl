@@ -17,6 +17,10 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         }),
     )
 
+@app.get("/")
+def hello():
+    return "Hello"
+
 @app.post("/otp/request")
 def request_otp(request: OtpModel.Item):
     return OTP.request(request)
