@@ -1,8 +1,8 @@
-from fastapi import FastAPI, Request, HTTPException, status
+from fastapi import FastAPI, Request, HTTPException, status, File, UploadFile
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from apps import OTP
+from apps import OTP, Files
 from models import OtpModel
 
 app = FastAPI()
@@ -28,3 +28,8 @@ def request_otp(request: OtpModel.Item):
 @app.post("/otp/verify")
 def verify_otp(request: OtpModel.Verify):
     return OTP.verify(request)
+
+@app.post("/files/upload")
+async def upload_file(file: UploadFile):
+    file_result = await Files.upload(file)
+    return {"filename": file_result}
