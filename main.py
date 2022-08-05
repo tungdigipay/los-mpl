@@ -35,6 +35,6 @@ async def upload_file(file: UploadFile):
     file_result = await Files.upload(file)
     return {"filename": file_result}
 
-@app.post("/ocr/storage")
-async def ocr_storage(request: OcrModel.Item):
-    return Customers.storage(request)
+# @app.post("/ocr/storage")
+# async def ocr_storage(request: OcrModel.Item):
+#     return Customers.storage(request)
