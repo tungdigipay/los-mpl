@@ -1,6 +1,5 @@
-from cgitb import text
-from datetime import date
-from pydantic import BaseModel, validator
+from pydantic import BaseModel
+# , validator
 # import re
 
 class Item(BaseModel):
@@ -16,7 +15,7 @@ class Item(BaseModel):
     idNumberFrontImage: str
     idNumberBackImage: str
     status: str
-    extractData: text
+    extractData: str
 
     # @validator('email')
     # def email_valiadator(cls, v):
