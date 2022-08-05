@@ -3,7 +3,8 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from apps import OTP, Files, Customers
-from models import OtpModel, OcrModel
+from models import OtpModel
+# , OcrModel
 
 app = FastAPI()
 
