@@ -9,7 +9,8 @@ from models import OtpModel, OcrModel
 app = FastAPI()
 
 origins = [
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "http://appay.cloudcms.test"
 ]
 
 app.add_middleware(
