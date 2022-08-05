@@ -1,5 +1,6 @@
 from libraries import Hasura
 from libraries import OtpCall
+from repositories import OtpRepository
 import random, string
 
 def request(request):
@@ -13,16 +14,15 @@ def _create_otpCode() -> str:
     return ''.join(random.choice(string.digits) for _ in range(4))
 
 def verify(request):
-    query = 'query getUUID { otp_logs(where: {UUID: {_eq: "' + request.UUID + '"} }) { ID createdDate dataResponse mobilePhone otpCode retryTime } }'
-    response = Hasura.process("getUUID", query)
+    response = OtpRepository.get_by_UUID(request.UUID)
 
-    if response['data']['otp_logs'] == [] :
+    if response['data']['LOG_otp'] == [] :
         return {
             'status': False,
             'message': "Không tìm thấy UUID"
         }
 
-    data_otp = response['data']['otp_logs'][0]
+    data_otp = response['data']['LOG_otp'][0]
     if (data_otp['otpCode'] == request.otpCode):
         return {
             'status': True,
@@ -36,7 +36,7 @@ def verify(request):
         }
 
     newRetryTime = data_otp['retryTime'] + 1
-    query = 'mutation updateOTPRetryTime { update_otp_logs(where: {ID: {_eq: ' + str(data_otp['ID']) + '} }, _set: {retryTime: "' + str(newRetryTime) + '"}) { returning { ID } } }'
+    query = 'mutation updateOTPRetryTime { update_LOG_otp(where: {ID: {_eq: ' + str(data_otp['ID']) + '} }, _set: {retryTime: "' + str(newRetryTime) + '"}) { returning { ID } } }'
     Hasura.process("updateOTPRetryTime", query)
 
     return {

@@ -8,3 +8,7 @@ def record_log(mobilePhone, otpCode, res):
         'status': True,
         'data': responseInsert['data']['insert_LOG_otp_one']
     }
+
+def get_by_UUID(UUID):
+    query = 'query getUUID { LOG_otp(where: {UUID: {_eq: "' + UUID + '"} }) { ID createdDate dataResponse mobilePhone otpCode retryTime } }'
+    return Hasura.process("getUUID", query)
