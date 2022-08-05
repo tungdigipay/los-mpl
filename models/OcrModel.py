@@ -1,7 +1,7 @@
 from cgitb import text
 from datetime import date
 from pydantic import BaseModel, validator
-import re
+# import re
 
 class Item(BaseModel):
     mobilePhoneUUID: str
@@ -20,8 +20,9 @@ class Item(BaseModel):
 
     @validator('email')
     def email_valiadator(cls, v):
-        regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-        if(re.fullmatch(regex, v)):
-            return v
-        else:
-            raise ValueError("Invalid Email")
+        return v
+        # regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+        # if(re.fullmatch(regex, v)):
+        #     return v
+        # else:
+        #     raise ValueError("Invalid Email")
