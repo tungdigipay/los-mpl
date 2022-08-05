@@ -36,8 +36,7 @@ def verify(request):
         }
 
     newRetryTime = data_otp['retryTime'] + 1
-    query = 'mutation updateOTPRetryTime { update_LOG_otp(where: {ID: {_eq: ' + str(data_otp['ID']) + '} }, _set: {retryTime: "' + str(newRetryTime) + '"}) { returning { ID } } }'
-    Hasura.process("updateOTPRetryTime", query)
+    OtpRepository.update_retry(data_otp['ID'], newRetryTime)
 
     return {
         'status': False,
