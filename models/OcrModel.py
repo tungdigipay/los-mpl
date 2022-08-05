@@ -1,4 +1,3 @@
-from pydoc import text
 from pydantic import BaseModel, validator
 import re
 
@@ -15,7 +14,7 @@ class Item(BaseModel):
     idNumberFrontImage: str
     idNumberBackImage: str
     status: str
-    extractData: text
+    extractData: str
 
     @validator('email')
     def email_valiadator(cls, v):
