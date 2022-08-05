@@ -1,6 +1,5 @@
-from pydantic import BaseModel
-# , validator
-# import re
+from pydantic import BaseModel, validator
+import re
 
 class Item(BaseModel):
     mobilePhoneUUID: str
@@ -17,11 +16,10 @@ class Item(BaseModel):
     status: str
     extractData: str
 
-    # @validator('email')
-    # def email_valiadator(cls, v):
-    #     return v
-        # regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-        # if(re.fullmatch(regex, v)):
-        #     return v
-        # else:
-        #     raise ValueError("Invalid Email")
+    @validator('email')
+    def email_valiadator(cls, v):
+        regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+        if(re.fullmatch(regex, v)):
+            return v
+        else:
+            raise ValueError("Invalid Email")
