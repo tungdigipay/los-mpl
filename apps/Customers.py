@@ -1,4 +1,4 @@
-from libraries import Hasura
+from repositories import CustomerRepository
 
 def storage(request):
     dateOfBirth = request.dateOfBirth
@@ -6,5 +6,4 @@ def storage(request):
     genderID = request.genderID
     idNumber = request.idNumber
 
-    query = 'mutation m_insertCustomer { insert_LOS_customers(objects: {dateOfBirth: "' + dateOfBirth + '", fullName: "' + fullName + '", idNumber: "' + idNumber + '", genderID: "' + str(genderID) + '"}) { returning { UUID } } } '
-    return Hasura.process("m_insertCustomer", query)
+    return CustomerRepository.create(dateOfBirth, fullName, idNumber, genderID)

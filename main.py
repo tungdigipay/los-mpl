@@ -27,7 +27,8 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content=jsonable_encoder({
             "status": False,
-            "massage": exc.errors()[0]['msg']
+            "massage": exc.errors()[0]['msg'],
+            "data": exc.errors()
         }),
     )
 

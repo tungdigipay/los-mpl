@@ -1,6 +1,5 @@
-import configparser, json, requests
-from libraries import Hasura
-from io import BytesIO
+import configparser, requests
+from repositories import OtpRepository
 
 config = configparser.ConfigParser()
 config.read('configs.ini')
@@ -25,11 +24,5 @@ def process(mobilePhone, otpCode):
             'status': False,
             'message': "Đã có lỗi từ dịch vụ tổng đài"
         }
-
-    query = 'mutation m_otp{insert_otp_logs_one(object:{mobilePhone:"' + mobilePhone + '",otpCode:"' + otpCode + '", dataResponse:"' + res + '"}) { UUID }}'
-    responseInsert = Hasura.process("m_otp", query)
     
-    return {
-        'status': True,
-        'data': responseInsert['data']['insert_otp_logs_one']
-    }
+    return OtpRepository.record_log(mobilePhone, otpCode, res)
