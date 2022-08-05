@@ -1,8 +1,13 @@
-from services import OtpCall, Hasura
+from libraries import Hasura
+from libraries import OtpCall
+import random, string
 
 def request(request):
-    otpCode = "0129"
+    otpCode = _create_otpCode()
     return OtpCall.process(request.mobilePhone, otpCode)
+
+def _create_otpCode() -> str:
+    return ''.join(random.choice(string.digits) for _ in range(4))
 
 def verify(request):
     query = 'query getUUID { otp_logs(where: {UUID: {_eq: "' + request.UUID + '"} }) { ID createdDate dataResponse mobilePhone otpCode retryTime } }'

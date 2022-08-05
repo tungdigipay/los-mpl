@@ -1,6 +1,6 @@
 from pathlib import Path
 from fastapi import File, UploadFile
-from services import S3
+from libraries import S3
 
 async def upload(file):
     contents = await file.read()

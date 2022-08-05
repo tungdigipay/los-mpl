@@ -1,5 +1,5 @@
 import configparser, json, requests
-from services import Hasura
+from libraries import Hasura
 from io import BytesIO
 
 config = configparser.ConfigParser()

@@ -2,8 +2,8 @@ from fastapi import FastAPI, Request, HTTPException, status, File, UploadFile
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from apps import OTP, Files
-from models import OtpModel
+from apps import OTP, Files, Customers
+from models import OtpModel, OcrModel
 
 app = FastAPI()
 
@@ -18,8 +18,8 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 @app.get("/")
-def hello():
-    return "Hello"
+def root():
+    return "hello"
 
 @app.post("/otp/request")
 def request_otp(request: OtpModel.Item):
@@ -33,3 +33,7 @@ def verify_otp(request: OtpModel.Verify):
 async def upload_file(file: UploadFile):
     file_result = await Files.upload(file)
     return {"filename": file_result}
+
+@app.post("/ocr/storage")
+async def ocr_storage(request: OcrModel.Item):
+    return Customers.storage(request)

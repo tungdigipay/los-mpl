@@ -1,5 +1,4 @@
 import json, configparser, requests
-from io import BytesIO
 
 config = configparser.ConfigParser()
 config.read('configs.ini')
@@ -8,9 +7,6 @@ endpoint = config['endpoint']
 secret = config['secret']
 
 def process(name, query, variables: dict = {}):
-    data_response = BytesIO()
-    # # c = pycurl.Curl()
-    # c.setopt(c.URL, endpoint)
 
     headers = {
         'content-type': 'application/json',
