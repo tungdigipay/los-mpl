@@ -18,9 +18,9 @@ class Item(BaseModel):
     status: str
     extractData: text
 
-    @validator('email')
-    def email_valiadator(cls, v):
-        return v
+    # @validator('email')
+    # def email_valiadator(cls, v):
+    #     return v
         # regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
         # if(re.fullmatch(regex, v)):
         #     return v
