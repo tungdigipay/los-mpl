@@ -21,6 +21,12 @@ def process(name, query, variables: dict = {}):
     response = requests.post(endpoint, headers = headers, data=json.dumps(data))
     status_code = response.status_code
     res = response.json()
+    
+    if "errors" in res:
+        return {
+            'status': False,
+            'message': res['errors'][0]['message']
+        }
 
     if status_code != 200:
         return {

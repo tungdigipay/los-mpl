@@ -18,7 +18,19 @@ def process(slug, type, payload):
         url += "?" + urlencode(payload)
 
     response = requests.request(type, url, headers=headers, data=payload)
-    query = 'mutation m_log_kalapa { insert_LOG_kalapa(objects: {url: "' + url + '", payload: "' + json.dumps(payload).replace('"', '\\"') + '", response: "' + response.text.replace('"', '\\"') + '"}) { returning { ID } } } '
+    query = """
+mutation m_log_kalapa { 
+    insert_LOG_kalapa(
+        objects: {
+            url: "%s", 
+            payload: "%s", 
+            response: "%s"
+        }
+    ) { 
+        returning { ID } 
+    } 
+}
+    """ % (url, json.dumps(payload).replace('"', '\\"'), response.text.replace('"', '\\"'))
     Hasura.process("m_log_kalapa", query)
 
     try:
