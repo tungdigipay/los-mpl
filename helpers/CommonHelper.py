@@ -5,3 +5,11 @@ def validate_date(text):
     except ValueError:
         return False
     return True
+
+def is_json(text):
+    import json
+    try:
+        json.loads(text)
+    except ValueError as e:
+        return False
+    return True

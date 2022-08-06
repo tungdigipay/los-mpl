@@ -42,3 +42,10 @@ class Item(BaseModel):
         if(len(v) not in [9, 12]):
             raise ValueError("CMND/ CCCD không hợp lệ")
         return v
+
+    @validator('extractData')
+    def extractData_validator(cls, v):
+        from helpers.CommonHelper import is_json
+        if is_json(v) == True:
+            return v
+        raise ValueError("OCR Data không hợp lệ")
