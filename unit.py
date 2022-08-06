@@ -1,21 +1,21 @@
 import json
+from libraries import Hasura
+
 payload = {
     "tung": "khanh"
 }
 url = "http://kalapa.vn/"
 response = "no"
 query = """
-mutation m_log_kalapa { 
-    insert_LOG_kalapa(
-        objects: {
-            url: "%s", 
-            payload: "%s", 
-            response: "%s"
-        }
-    ) { 
-        returning { ID } 
-    } 
+query LOS_customers {
+  LOS_customers {
+    ID
+    fullName,
+    LOS_master_gender{
+      label score
+    }
+  }
 }
-    """ % (url, json.dumps(payload), response)
+    """
 
-print(query)
+print(Hasura.process("LOS_customers", query))

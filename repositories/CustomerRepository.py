@@ -13,5 +13,5 @@ mutation m_insertCustomer {
     ) 
     { returning { ID UUID } } 
 } 
-""" % (dateOfBirth, fullName, idNumber, genderID)
+""" % (dateOfBirth, fullName.upper(), idNumber, genderID)
     return Hasura.process("m_insertCustomer", query)

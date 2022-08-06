@@ -23,13 +23,22 @@ def verify(request):
         }
 
     data_otp = response['data']['LOG_otp'][0]
+
+    if data_otp['status'] != 'new':
+        return {
+            'status': False,
+            'message': "OTP đã hết hạn"
+        }
+
     if (data_otp['otpCode'] == request.otpCode):
+        OtpRepository.update_status(data_otp['ID'], 'pass')
         return {
             'status': True,
             'message': "Mã OTP hợp lệ"
         }
 
     if data_otp['retryTime'] >= 3:
+        OtpRepository.update_status(data_otp['ID'], 'failed')
         return {
             'status': True,
             'message': "Mã OTP hết hạn"

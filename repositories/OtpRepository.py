@@ -7,7 +7,8 @@ mutation m_otp {
         object: {
             mobilePhone: "%s",
             otpCode: "%s",
-            dataResponse: "%s"
+            dataResponse: "%s",
+            status: "new"
         }
     ) 
     { UUID }
@@ -27,7 +28,7 @@ query getUUID {
         where: {
             UUID: {_eq: "%s"} }
     ) 
-    { ID createdDate dataResponse mobilePhone otpCode retryTime } 
+    { ID createdDate dataResponse mobilePhone otpCode retryTime status } 
 }
 """ % (UUID)
     return Hasura.process("getUUID", query)
@@ -46,5 +47,21 @@ mutation updateOTPRetryTime {
     { returning { ID } } 
 }
 """ % (ID, newRetryTime)
+    return Hasura.process("updateOTPRetryTime", query)
 
+def update_status(ID, status):
+    query = """
+mutation updateOTPRetryTime { 
+    update_LOG_otp (
+        where: {
+            ID: { _eq: %d} 
+        }, 
+        _set: {
+            retryTime: "%d",
+            status: "%s"
+        }
+    ) 
+    { returning { ID } } 
+}
+""" % (ID, status)
     return Hasura.process("updateOTPRetryTime", query)
