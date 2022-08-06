@@ -1,3 +1,4 @@
+import json
 from fastapi import FastAPI, Request, HTTPException, status, File, UploadFile
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
@@ -6,11 +7,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from apps import OTP, Files, Customers
 from models import OtpModel, OcrModel
 
+from services import ApplicationService
+
 app = FastAPI()
 
 origins = [
     "http://localhost:3000",
-    "http://appay.cloudcms.test"
+    "http://appay.cloudcms.test",
+    "https://97146238.mfast-web.pages.dev/"
 ]
 
 app.add_middleware(
@@ -34,6 +38,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 @app.get("/")
 def root():
+    return ApplicationService.credit_score("090111222", "0901112222")
     return "hello"
 
 @app.post("/otp/request")

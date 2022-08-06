@@ -32,6 +32,3 @@ def process(name, query, variables: dict = {}):
         'status': True,
         'data': res['data']
     }
-
-if __name__ == "__main__":
-    print(process("otp", "query otp { otp_logs { createdDate mobilePhone otpCode } }"))
