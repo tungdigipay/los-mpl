@@ -48,4 +48,4 @@ class Item(BaseModel):
         from helpers.CommonHelper import is_json
         if is_json(v) == True:
             return v
-        raise ValueError("OCR Data không hợp lệ")
+        raise ValueError("extractData không hợp lệ")

@@ -13,3 +13,10 @@ def is_json(text):
     except ValueError as e:
         return False
     return True
+
+def is_uuid(text):
+    from uuid import UUID
+    try:
+        return UUID(text).version
+    except ValueError:
+        return False
