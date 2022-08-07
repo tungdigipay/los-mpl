@@ -5,7 +5,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from apps import OTP, Files, Customers
-from models import OtpModel, OcrModel, FileModel
+from models import OtpModel, OcrModel, FileModel, ApplicationModel
 
 from services import ApplicationService
 
@@ -57,3 +57,7 @@ async def upload_file(request: FileModel.Item):
 @app.post("/ocr/storage")
 async def ocr_storage(request: OcrModel.Item):
     return Customers.storage(request)
+
+@app.post("/application/submit")
+async def application_submit(request: ApplicationModel.Item):
+    return request
