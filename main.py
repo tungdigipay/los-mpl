@@ -56,7 +56,7 @@ async def upload_file(request: FileModel.Item):
 
 @app.post("/ocr/storage")
 async def ocr_storage(request: OcrModel.Item):
-    return Customers.storage(request)
+    return Applications.init(request)
 
 @app.post("/kyc/storage")
 async def ocr_storage(request: KycModel.Item):
