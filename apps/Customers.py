@@ -25,16 +25,6 @@ def storage(request):
     mobilePhone = otp_data['data']['mobilePhone']
     data["mobilePhone"] = mobilePhone
 
-    ## check DGP blacklist
-    dgp_blacklist_result = DgpService.check_blacklist()
-    if dgp_blacklist_result['status'] == False:
-        return dgp_blacklist_result
-
-    ## check DGP dedup
-    dgp_dedup_result = DgpService.check_dedup()
-    if dgp_dedup_result['status'] == False:
-        return dgp_dedup_result
-
     customer = CustomerRepository.create(data)
     if customer['status'] == False:
         return customer
@@ -50,6 +40,16 @@ def storage(request):
     customerOCR = CustomerOcrService.create(data)
     if customerOCR['status'] == False:
         return customerOCR
+
+    ## check DGP blacklist
+    dgp_blacklist_result = DgpService.check_blacklist()
+    if dgp_blacklist_result['status'] == False:
+        return dgp_blacklist_result
+
+    ## check DGP dedup
+    dgp_dedup_result = DgpService.check_dedup()
+    if dgp_dedup_result['status'] == False:
+        return dgp_dedup_result
 
     return {
         "status": True,

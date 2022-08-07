@@ -57,7 +57,6 @@ mutation updateOTPRetryTime {
             ID: { _eq: %d} 
         }, 
         _set: {
-            retryTime: "%d",
             status: "%s"
         }
     ) 
