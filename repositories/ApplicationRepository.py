@@ -63,3 +63,49 @@ def submit(data):
     res = Hasura.process("m_insert_LOS_applications_one", query)
 
     return res
+
+def detail_by_uniqueID(uniqueID):
+    query = """
+    query q_LOS_applications {
+        LOS_applications(
+            where: {
+                uniqueID: {
+                    _eq: "%s" 
+                }
+            }
+        ) {
+            ID
+        }
+    }
+    """ % (uniqueID)
+
+    res = Hasura.process("q_LOS_applications", query)
+    return res
+
+def update_kyc(data):
+    query = """
+    mutation update_LOS_customer_ocrs {
+        update_LOS_customer_ocrs(
+            where: {
+                LOS_application: { ID: { _eq: %d }}
+            }, 
+            _set: {
+                faceImage: "%s",
+                responseEkyc: "%s"
+            }
+        ) {
+            affected_rows
+        }
+    }
+    """ % (data['applicationID'], data['faceImage'], data['extractData'].replace('"', '\\"'))
+
+    res = Hasura.process("update_LOS_customer_ocrs", query)
+    if res['status'] == False:
+        return res
+
+    return {
+        "status": True,
+        "data": {
+            "uniqueID": data['uniqueID']
+        }
+    }
