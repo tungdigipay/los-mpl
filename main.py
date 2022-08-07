@@ -4,7 +4,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from apps import OTP, Files, Customers
+from apps import OTP, Files, Customers, Applications
 from models import OtpModel, OcrModel, FileModel, ApplicationModel
 
 from services import ApplicationService
@@ -60,4 +60,4 @@ async def ocr_storage(request: OcrModel.Item):
 
 @app.post("/application/submit")
 async def application_submit(request: ApplicationModel.Item):
-    return request
+    return Applications.submit(request)
