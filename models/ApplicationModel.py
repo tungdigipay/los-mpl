@@ -2,9 +2,10 @@ from pydantic import BaseModel, validator, Field
 from typing import Union
 
 class Item(BaseModel):
+    uniqueID: str
     productID: int = Field(gt=0, description="The price must be greater than zero")
     note: Union[str, None] = Field(
-        default=None, title="The description of the item", max_length=255
+        default=None, title="Gh chú hồ sơ", max_length=255
     )
 
     ## thông tin hiện tại
@@ -46,3 +47,10 @@ class Item(BaseModel):
     loanTenor: int = Field(gt=0, description="Thời hạn vay phải có")
     loanAmount: int = Field(gt=0, description="Khoản vay phải có")
     emi: int = Field(gt=0, description="Số tiền ước tính hàng tháng")
+
+    @validator('uniqueID')
+    def uniqueID_validator(cls, v):
+        from helpers.CommonHelper import is_uuid
+        if is_uuid(v) == False:
+            raise ValueError("uniqueID không hợp lệ")
+        return v

@@ -16,6 +16,13 @@ class Item(BaseModel):
     status: str
     extractData: str
 
+    @validator('mobilePhoneUUID')
+    def mobilePhoneUUID_validator(cls, v):
+        from helpers.CommonHelper import is_uuid
+        if is_uuid(v) == False:
+            raise ValueError("mobilePhoneUUID không hợp lệ")
+        return v
+
     @validator('idNumber_dateOfIssue')
     def idNumber_dateOfIssue_valiadator(cls, v):
         from helpers.CommonHelper import validate_date

@@ -25,3 +25,10 @@ class Verify(BaseModel):
             raise ValueError("Length must be 4")
 
         return v
+
+    @validator('UUID')
+    def UUID_validator(cls, v):
+        from helpers.CommonHelper import is_uuid
+        if is_uuid(v) == False:
+            raise ValueError("UUID không hợp lệ")
+        return v
