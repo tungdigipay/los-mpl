@@ -1,5 +1,5 @@
 from repositories import ApplicationRepository, CustomerRepository
-from services import OtpService, DgpService, CustomerOcrService, CustomerProfileService
+from services import OtpService
 
 def init(request):
     data = {

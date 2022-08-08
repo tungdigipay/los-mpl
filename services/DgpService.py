@@ -1,9 +1,9 @@
-def check_blacklist():
-    return {
-        "status": True
-    }
+from services import ApplicationService  
 
-def check_dedup():
-    return {
-        "status": True
-    }
+def check_blacklist(idNumber, mobilePhone):
+    res = ApplicationService.mfast_blacklist(idNumber, mobilePhone)
+    return res
+
+def check_dedup(idNumber, mobilePhone):
+    res = ApplicationService.mfast_dedup(idNumber, mobilePhone)
+    return res
