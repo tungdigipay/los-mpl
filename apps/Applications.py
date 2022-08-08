@@ -16,7 +16,7 @@ def init(request):
         "idNumberFrontImage"    : request.idNumberFrontImage,
         "idNumberBackImage"     : request.idNumberBackImage,
         "extractData"           : request.extractData,
-        "status"                : 1
+        "statusID"              : 1
     }
 
     ## check otp status
