@@ -11,7 +11,7 @@ def init(data):
                 responseOCR: "%s"
                 LOS_application:{
                     data:{
-                        statusID: 1,
+                        statusID: %d,
                         customerID: %d,
                         LOS_customer_profile: {
                             data: {
@@ -34,33 +34,117 @@ def init(data):
 
     """ % (
         data['idNumberFrontImage'], data['idNumberBackImage'], data['status'], data['extractData'].replace('"', '\\"'),
-        data['customerID'],
+        data['statusID'], data['customerID'],
         data['idNumber_dateOfIssue'], data['idNumber_issuePlace'], data['mobilePhone'], data['nationality'], data['customerID'], data['email'], data['marritalStatusID']
     )
-    print (query)
     res = Hasura.process("m_insert_LOS_customer_ocrs_one", query)
 
     return res
 
 def submit(data):
+    applicationID = data['applicationID']
     customerID = data['customerID']
     customer_profileID = data['customer_profileID']
     statusID = data['statusID']
+    productID = data['productID']
+    note = data['note']
+    loanTenor = data['loanTenor']
+    loanAmount = data['loanAmount']
+    emi = data['emi']
+
+    ## thông tin nơi ở
+    currentAddressProvince = data['currentAddressProvince']
+    currentAddressDistrict = data['currentAddressDistrict']
+    currentAddressWard = data['currentAddressWard']
+    currentAddressDetail = data['currentAddressDetail']
+
+    ## thông tin hộ khẩu
+    permanentAddressProvince = data['permanentAddressProvince']
+    permanentAddressDistrict = data['permanentAddressDistrict']
+    permanentAddressWard = data['permanentAddressWard']
+    permanentAddressDetail = data['permanentAddressDetail']
+
+    ## thông tin nghề nghiệp
+    companyName = data['companyName']
+    monthlyIncome = data['monthlyIncome']
+    monthlyExpenses = data['monthlyExpenses']
+    employmentType = data['employmentType']
+
+    ## thông tin tham chiếu
+    reference1Name = data['reference1Name']
+    reference1Relationship = data['reference1Relationship']
+    reference1Phone = data['reference1Phone']
+
+    reference2Name = data['reference2Name']
+    reference2Relationship = data['reference2Relationship']
+    reference2Phone = data['reference2Phone']
 
     query = """
-    mutation m_insert_LOS_applications_one { 
-        insert_LOS_applications_one(
-            object: { 
+    mutation m_update_LOS_applications { 
+        update_LOS_applications(
+            where: {
+                ID: { _eq: %d }
+            }, 
+            _set: { 
                 customerID: %d, 
                 customer_profileID: %d, 
-                statusID: %d
+                statusID: %d,
+
+                productID: %d,
+                note: "%s",
+                loanTenor: %d,
+                loanAmount: %d,
+                emi: %d,
+
+                companyName: "%s",
+                monthlyIncome: %d,
+                monthlyExpenses: %d,
+                employmentType: %d,
+
+                reference1Name: "%s",
+                reference1Relationship: %d,
+                reference1Phone: "%s",
+
+                reference2Name: "%s",
+                reference2Relationship: %d,
+                reference2Phone: "%s",
             }
         ) {
-            ID uniqueID
+            returning{ ID uniqueID}
+        }
+
+        update_LOS_customer_profiles (
+            where: {
+                ID: { _eq: %d }
+            },
+            _set: {
+                currentAddressProvince: %d,
+                currentAddressDistrict: %d,
+                currentAddressWard: %d,
+                currentAddressDetail: "%s",
+
+                permanentAddressProvince: %d,
+                permanentAddressDistrict: %d,
+                permanentAddressWard: %d,
+                permanentAddressDetail: "%s"
+            }
+        ){
+            returning{ ID uniqueID}
         }
     } 
-    """ % (customerID, customer_profileID, statusID)
-    res = Hasura.process("m_insert_LOS_applications_one", query)
+    """ % (
+        applicationID,
+        customerID, customer_profileID, statusID,
+        productID, note, loanTenor, loanAmount, emi,
+        companyName, monthlyIncome, monthlyExpenses, employmentType,
+        reference1Name, reference1Relationship, reference1Phone,
+        reference2Name, reference2Relationship, reference2Phone,
+
+        customer_profileID,
+        currentAddressProvince, currentAddressDistrict, currentAddressWard, currentAddressDetail,
+        permanentAddressProvince, permanentAddressDistrict, permanentAddressWard, permanentAddressDetail
+    )
+    res = Hasura.process("m_update_LOS_applications", query)
 
     return res
 
@@ -74,7 +158,7 @@ def detail_by_uniqueID(uniqueID):
                 }
             }
         ) {
-            ID
+            ID customerID customer_profileID statusID
         }
     }
     """ % (uniqueID)
@@ -96,8 +180,20 @@ def update_kyc(data):
         ) {
             affected_rows
         }
+
+        LOS_applications(
+            where: {
+                ID: { _eq: %d }
+            },
+            _set: {
+                statusID: 2
+            }
+        )
     }
-    """ % (data['applicationID'], data['faceImage'], data['extractData'].replace('"', '\\"'))
+    """ % (
+        data['applicationID'], data['faceImage'], data['extractData'].replace('"', '\\"'),
+        data['applicationID']
+    )
 
     res = Hasura.process("update_LOS_customer_ocrs", query)
     if res['status'] == False:

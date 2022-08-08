@@ -1,5 +1,5 @@
 from repositories import ApplicationRepository, CustomerRepository
-from services import OtpService
+from services import OtpService, DgpService, ApplicationService
 
 def init(request):
     data = {
@@ -15,7 +15,8 @@ def init(request):
         "status"                : request.status,
         "idNumberFrontImage"    : request.idNumberFrontImage,
         "idNumberBackImage"     : request.idNumberBackImage,
-        "extractData"           : request.extractData
+        "extractData"           : request.extractData,
+        "status"                : 1
     }
 
     ## check otp status
@@ -24,6 +25,14 @@ def init(request):
         return otp_data
     mobilePhone = otp_data['data']['mobilePhone']
     data["mobilePhone"] = mobilePhone
+
+    ## check dedup in los
+    check_dedup_in_los = ApplicationService.dedup_in_los(data['idNumber'])
+    if check_dedup_in_los['status'] == False:
+        return {
+            "status": False,
+            "message": check_dedup_in_los['message']
+        }
 
     customer = CustomerRepository.create(data)
     if customer['status'] == False:
@@ -36,6 +45,15 @@ def init(request):
     if res['status'] == False:
         return res
 
+    dgp_blacklist_result = DgpService.check_blacklist(data['idNumber'], mobilePhone)
+    if dgp_blacklist_result['status'] == False:
+        return dgp_blacklist_result
+
+    ## check DGP dedup
+    dgp_dedup_result = DgpService.check_dedup(data['idNumber'], mobilePhone)
+    if dgp_dedup_result['status'] == False:
+        return dgp_dedup_result
+
     return {
         "status": True,
         "data": {
@@ -43,11 +61,50 @@ def init(request):
         }
     }
 
-def submit(data):
+def submit(request):
+    application = ApplicationRepository.detail_by_uniqueID(request.uniqueID)
+    if application['status'] == False:
+        return application
+    
+    applicationID = application['data']['LOS_applications'][0]['ID']
+    customerID = application['data']['LOS_applications'][0]['customerID']
+    customer_profileID = application['data']['LOS_applications'][0]['customer_profileID']
+
     data = {
-        "customerID": 23, 
-        "customer_profileID": 13, 
-        "statusID": 1
+        "applicationID": applicationID,
+        "customerID": customerID, 
+        "customer_profileID": customer_profileID, 
+        "statusID": 3, ## Khách hàng hoàn tất hồ sơ vay và chờ xét duyệt
+        "productID": 1,
+
+        "note": request.note,
+        "currentAddressProvince": request.currentAddressProvince,
+        "currentAddressDistrict": request.currentAddressDistrict,
+        "currentAddressWard": request.currentAddressWard,
+        "currentAddressDetail": request.currentAddressDetail,
+
+        "permanentAddressProvince": request.permanentAddressProvince,
+        "permanentAddressDistrict": request.permanentAddressDistrict,
+        "permanentAddressWard": request.permanentAddressWard,
+        "permanentAddressDetail": request.permanentAddressDetail,
+
+        "employmentType": request.employmentType, 
+        "companyName":  request.companyName, 
+        "monthlyIncome": request.monthlyIncome, 
+        "monthlyExpenses": request.monthlyExpenses, 
+
+        "bankID": request.bankID, 
+        "bankAccountNumber":  request.bankAccountNumber,
+        "bankAccountName":  request.bankAccountName, 
+        "reference1Name":  request.reference1Name,
+        "reference1Relationship": request.reference1Relationship, 
+        "reference1Phone": request.reference1Phone,
+        "reference2Name": request.reference2Name,
+        "reference2Relationship": request.reference2Relationship, 
+        "reference2Phone":  request.reference2Phone,
+        "loanTenor": request.loanTenor,
+        "loanAmount": request.loanAmount, 
+        "emi": request.emi
     }
     
     res = ApplicationRepository.submit(data)
@@ -57,6 +114,6 @@ def submit(data):
     return {
         "status": True,
         "data": {
-            "uniqueID": res['data']['insert_LOS_applications_one']['uniqueID']
+            "uniqueID": res['data']['update_LOS_applications']['returning'][0]['uniqueID']
         }
     }

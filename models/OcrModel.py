@@ -1,7 +1,12 @@
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, Field
 import re
+from typing import Union
 
 class Item(BaseModel):
+    type: str
+    uniqueID: Union[str, None] = Field(
+        default=None, title="Mã hồ sơ"
+    )
     mobilePhoneUUID: str
     fullName: str
     dateOfBirth: str
@@ -15,6 +20,12 @@ class Item(BaseModel):
     idNumberBackImage: str
     status: str
     extractData: str
+
+    @validator("type")
+    def type_validator(cls, v):
+        if v not in ["init", "update"]:
+            raise ValueError("Type must be init or update")
+        return v
 
     @validator('mobilePhoneUUID')
     def mobilePhoneUUID_validator(cls, v):

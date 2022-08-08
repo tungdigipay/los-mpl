@@ -17,3 +17,11 @@ def mfast_dedup(idNumber, mobilePhone):
         "idNumber": idNumber,
         "mobilePhone": mobilePhone
     })
+
+def dedup_in_los(idNumber):
+    
+    return {
+        "status": True,
+        "message": "",
+        "code": ""
+    }

@@ -5,7 +5,7 @@ class Item(BaseModel):
     uniqueID: str
     productID: int = Field(gt=0, description="The price must be greater than zero")
     note: Union[str, None] = Field(
-        default=None, title="Gh chú hồ sơ", max_length=255
+        default=None, title="Ghi chú hồ sơ", max_length=255
     )
 
     ## thông tin hiện tại
