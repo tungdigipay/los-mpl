@@ -69,4 +69,7 @@ async def application_submit(request: ApplicationModel.Item):
 
 @app.post("/actions/")
 async def actions():
-    return True
+    return {
+        "status": True,
+        "message": "tùng"
+    }
