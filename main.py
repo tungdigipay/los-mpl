@@ -11,12 +11,7 @@ from services import ApplicationService
 
 app = FastAPI()
 
-origins = [
-    "http://localhost:3000",
-    "http://appay.cloudcms.test",
-    "https://97146238.mfast-web.pages.dev",
-    "https://8dc35242.mfast-web.pages.dev"
-]
+origins = ['*']
 
 app.add_middleware(
     CORSMiddleware,
