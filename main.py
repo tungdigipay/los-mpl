@@ -66,3 +66,7 @@ async def ocr_storage(request: KycModel.Item):
 @app.post("/application/submit")
 async def application_submit(request: ApplicationModel.Item):
     return Applications.submit(request)
+
+@app.post("/actions/")
+async def actions():
+    return True
