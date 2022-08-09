@@ -3,6 +3,8 @@ from services import OtpService, DgpService, ApplicationService
 
 def init(request):
     data = {
+        "type"          : request.type,
+        "uniqueID"      : request.uniqueID,
         "nationality"   : "Việt Nam",
         "fullName"      : request.fullName,
         "dateOfBirth"   : request.dateOfBirth,
@@ -57,7 +59,7 @@ def init(request):
     return {
         "status": True,
         "data": {
-            "uniqueID": res['data']['insert_LOS_customer_ocrs_one']['LOS_application']['uniqueID']
+            "uniqueID": res['data']['uniqueID']
         }
     }
 

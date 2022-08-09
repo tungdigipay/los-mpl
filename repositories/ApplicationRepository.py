@@ -1,6 +1,12 @@
 from libraries import Hasura
 
 def init(data):
+    if data['type'] == "init":
+        return __init_add(data)
+    else :
+        return __init_update(data)
+
+def __init_add(data):
     query = """
     mutation m_insert_LOS_customer_ocrs_one {
         insert_LOS_customer_ocrs_one(
@@ -19,9 +25,7 @@ def init(data):
                                 idNumber_issuePlace: "%s",
                                 mobilePhone: "%s",
                                 nationality: "%s",
-                                customerID: %d,
-                                email: "%s",
-                                marritalStatusID: %d
+                                customerID: %d
                             }
                         }
                     }
@@ -31,15 +35,51 @@ def init(data):
             LOS_application{ uniqueID }
         }
     }
-
     """ % (
         data['idNumberFrontImage'], data['idNumberBackImage'], data['status'], data['extractData'].replace('"', '\\"'),
         data['statusID'], data['customerID'],
-        data['idNumber_dateOfIssue'], data['idNumber_issuePlace'], data['mobilePhone'], data['nationality'], data['customerID'], data['email'], data['marritalStatusID']
+        data['idNumber_dateOfIssue'], data['idNumber_issuePlace'], data['mobilePhone'], data['nationality'], data['customerID']
     )
     res = Hasura.process("m_insert_LOS_customer_ocrs_one", query)
+    if res['status'] == False:
+        return res
+    return {
+        "status": True,
+        "data": {
+            "uniqueID": res['data']['insert_LOS_customer_ocrs_one']['LOS_application']['uniqueID']
+        }
+    }
 
-    return res
+def __init_update(data):
+    query = """
+    mutation m_update_LOS_customer_profiles {
+        update_LOS_customer_profiles(
+            where: {
+                LOS_applications: {
+                    uniqueID: {_eq: "%s" } }
+                }
+            , _set: {
+                email: "%s",
+                marritalStatusID: %d,
+                idNumber_dateOfIssue: "%s",
+                idNumber_issuePlace: "%s",
+            }) {
+            affected_rows
+        }
+    }
+    """ % (
+        data['uniqueID'], data['email'], data['marritalStatusID'], 
+        data['idNumber_dateOfIssue'], data['idNumber_issuePlace']
+    )
+    res = Hasura.process("m_update_LOS_customer_profiles", query)
+    if res['status'] == False:
+        return res
+    return {
+        "status": True,
+        "data": {
+            "uniqueID": data['uniqueID']
+        }
+    }
 
 def submit(data):
     applicationID = data['applicationID']

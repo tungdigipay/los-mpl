@@ -14,8 +14,8 @@ class Item(BaseModel):
     idNumber: str
     idNumber_dateOfIssue: str
     idNumber_issuePlace: str
-    email: str
-    marritalStatusID: int
+    email: str = None
+    marritalStatusID: int = None
     idNumberFrontImage: str
     idNumberBackImage: str
     status: str
@@ -49,7 +49,9 @@ class Item(BaseModel):
         raise ValueError("Ngày sinh không hợp lệ")
 
     @validator('email')
-    def email_valiadator(cls, v):
+    def email_valiadator(cls, v, values, **kwargs):
+        if values['type']:
+            return v
         regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
         if(re.fullmatch(regex, v)):
             return v
