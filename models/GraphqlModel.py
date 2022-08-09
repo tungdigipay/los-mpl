@@ -1,6 +1,7 @@
+from typing import List
 from pydantic import BaseModel, validator
 
 class Item(BaseModel):
-    action: str
-    input: str
-    session_variables: str
+    action: List
+    input: List
+    session_variables: List
