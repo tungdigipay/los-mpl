@@ -12,7 +12,7 @@ from services import ApplicationService
 app = FastAPI()
 
 origins = [
-    "https://.*\.mfast-web\.pages\.dev"
+    "*"
 ]
 
 app.add_middleware(
@@ -21,6 +21,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 @app.exception_handler(RequestValidationError)
