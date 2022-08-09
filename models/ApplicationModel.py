@@ -54,3 +54,21 @@ class Item(BaseModel):
         if is_uuid(v) == False:
             raise ValueError("uniqueID không hợp lệ")
         return v
+
+    @validator("reference2Phone")
+    def referencePhone_validator(cls, v, values):
+        if v == values['reference1Phone']:
+            raise ValueError("Số điện thoại tham chiếu trùng nhau")
+        return v
+
+    @validator("reference2Relationship")
+    def referenceRelationship_validator(cls, v, values):
+        if v == values['reference1Relationship'] and v == 1:
+            raise ValueError("Thông tin tham chiếu không hợp lệ")
+        return v
+
+    @validator("reference2Name")
+    def referenceName_validator(cls, v, values):
+        if v == values['reference1Name']:
+            raise ValueError("Tên người tham chiếu trùng nhau")
+        return v
