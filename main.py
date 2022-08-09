@@ -67,7 +67,7 @@ async def ocr_storage(request: KycModel.Item):
 async def application_submit(request: ApplicationModel.Item):
     return Applications.submit(request)
 
-@app.post("/actions/")
+@app.post("/actions")
 async def m_actions():
     return {
         "accessToken": "tùng"
