@@ -11,7 +11,7 @@ def process(mobilePhone, otpCode):
     endpoint = configOTP['endpoint']
     url = f'{endpoint}?apicode={apiCode}&passcode={passcode}&phone={mobilePhone}&var_str={otpCode}'
     
-    if configOTP['activeCall'] == '1' : 
+    if configOTP['activeCall'] == '1' :
         response = requests.get(url)
         status_code = response.status_code
         res = response.text
