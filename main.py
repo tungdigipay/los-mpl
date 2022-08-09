@@ -5,7 +5,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from apps import OTP, Files, Customers, Applications, Kyc
-from models import OtpModel, OcrModel, FileModel, ApplicationModel, KycModel
+from models import OtpModel, OcrModel, FileModel, ApplicationModel, KycModel, GraphqlModel
 
 from services import ApplicationService
 
@@ -68,7 +68,7 @@ async def application_submit(request: ApplicationModel.Item):
     return Applications.submit(request)
 
 @app.post("/actions")
-async def m_actions():
+async def m_actions(request: GraphqlModel.Item):
     return {
         "accessToken": "tùng"
     }
