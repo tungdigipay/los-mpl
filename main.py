@@ -14,7 +14,8 @@ app = FastAPI()
 origins = [
     "http://localhost:3000",
     "http://appay.cloudcms.test",
-    "https://97146238.mfast-web.pages.dev"
+    "https://97146238.mfast-web.pages.dev",
+    "https://8dc35242.mfast-web.pages.dev/"
 ]
 
 app.add_middleware(
@@ -38,7 +39,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 @app.get("/")
 def root():
-    return ApplicationService.credit_score("090111222", "0901112222")
+    return ApplicationService.mfast_blacklist("090111222", "0901112222")
     return "hello"
 
 @app.post("/otp/request")
