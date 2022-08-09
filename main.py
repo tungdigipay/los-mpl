@@ -4,7 +4,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from apps import OTP, Files, Customers, Applications, Kyc
+from apps import OTP, Files, Customers, Applications, Kyc, Hyperverge
 from models import OtpModel, OcrModel, FileModel, ApplicationModel, KycModel, GraphqlModel
 
 from services import ApplicationService
@@ -69,3 +69,7 @@ async def m_actions(request: GraphqlModel.Item):
     return {
         "accessToken": "tùng"
     }
+
+@app.post("/hyperverge/login")
+async def login():
+    return Hyperverge.login()
