@@ -11,7 +11,9 @@ from services import ApplicationService
 
 app = FastAPI()
 
-origins = ['*']
+origins = [
+    "https://.*\.mfast-web\.pages\.dev"
+]
 
 app.add_middleware(
     CORSMiddleware,
