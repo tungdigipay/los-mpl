@@ -4,7 +4,8 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from apps import OTP, Files, Customers, Applications, Kyc, Hyperverge
+from apps import OTP, Files, Customers, Applications, Kyc, Hyperverge, Prescore
+from helpers.CommonHelper import get_age
 from models import OtpModel, OcrModel, FileModel, ApplicationModel, KycModel, GraphqlModel
 
 from services import ApplicationService
@@ -63,6 +64,10 @@ async def ocr_storage(request: KycModel.Item):
 @app.post("/application/submit")
 async def application_submit(request: ApplicationModel.Item):
     return Applications.submit(request)
+
+@app.post("/applications/prescore")
+async def applications_prescore(request: ApplicationModel.Prescore):
+    return Prescore.process(request.uniqueID)
 
 @app.post("/actions")
 async def m_actions(request: GraphqlModel.Item):

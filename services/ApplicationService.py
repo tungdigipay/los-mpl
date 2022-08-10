@@ -125,3 +125,29 @@ def __check_dedup_in_los_refused(idNumber):
     return {
         "status": True
     }
+
+def update_status(appID, statusID, message):
+    query = """
+    mutation m_update_LOS_applications_by_pk {
+        update_LOS_applications_by_pk(
+            pk_columns: { ID: %d }, 
+            _set: { 
+                statusID: %d ,
+                note: "%s"
+            }
+        ) {
+            ID
+        }
+    }
+    """ % (appID, statusID, message)
+
+    res = Hasura.process("m_update_LOS_applications_by_pk", query)
+    if res['status'] == False:
+        return {
+            "status": False,
+            "message": res['message']
+        }
+
+    return {
+        "status": True
+    }

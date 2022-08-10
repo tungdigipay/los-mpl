@@ -1,3 +1,4 @@
+from uuid import UUID
 from pydantic import BaseModel, validator, Field
 from typing import Union
 
@@ -72,3 +73,6 @@ class Item(BaseModel):
         if v == values['reference1Name']:
             raise ValueError("Tên người tham chiếu trùng nhau")
         return v
+
+class Prescore(BaseModel):
+    uniqueID: UUID
