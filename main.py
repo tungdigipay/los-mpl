@@ -94,3 +94,5 @@ def kalapa(item):
     from libraries import Kalapa
     if item == "check_mobilephone":
         return ApplicationService.check_mobilephone("0905044591")
+    if item == "social_insurance":
+        return ApplicationService.social_insurance("205341091")

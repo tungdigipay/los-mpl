@@ -11,6 +11,11 @@ def check_mobilephone(mobilePhone):
         "mobile": mobilePhone
     })
 
+def social_insurance(idNumber):
+    return Kalapa.process("user-profile/user-jscore/vc/get/", "GET", {
+        "id": idNumber
+    })
+
 def mfast_blacklist(idNumber, mobilePhone):
     return MFast.process("/blacklist", "POST", {
         "idNumber": idNumber,
