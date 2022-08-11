@@ -5,8 +5,10 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from apps import OTP, Files, Customers, Applications, Kyc, Hyperverge, Prescore
+# , Esign
 from helpers.CommonHelper import get_age
 from models import OtpModel, OcrModel, FileModel, ApplicationModel, KycModel, GraphqlModel
+# , EsignModel
 
 from services import ApplicationService
 
@@ -78,3 +80,17 @@ async def m_actions(request: GraphqlModel.Item):
 @app.post("/hyperverge/login")
 async def login():
     return Hyperverge.login()
+
+# @app.post("/esign/preparing")
+# def esign_preparing(request: EsignModel.Preparing):
+#     return Esign.preparing(request.agreementUUID)
+
+# @app.post("/esign/authorize")
+# def esign_authorize(request: EsignModel.Authorize):
+#     return Esign.authorize(request.agreementUUID, request.otpCode, request.billCode)
+
+@app.get("/kalapa/{item}")
+def kalapa(item):
+    from libraries import Kalapa
+    if item == "check_mobilephone":
+        return ApplicationService.check_mobilephone("0905044591")

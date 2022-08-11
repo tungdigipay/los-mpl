@@ -6,6 +6,11 @@ def credit_score(idNumber, mobilePhone):
         "mobile": mobilePhone
     })
 
+def check_mobilephone(mobilePhone):
+    return Kalapa.process("user-profile/mobile2id/get/", "GET", {
+        "mobile": mobilePhone
+    })
+
 def mfast_blacklist(idNumber, mobilePhone):
     return MFast.process("/blacklist", "POST", {
         "idNumber": idNumber,
