@@ -18,6 +18,7 @@ def process(uniqueID):
     birthday = application['LOS_customer']['dateOfBirth']
     loanTenor = application['loanTenor']
     monthly_income = application['monthlyIncome']
+    districtID = application['LOS_customer_profile']['currentAddressProvince']
 
     res_age = __score_age(birthday, loanTenor)
     if res_age['status'] == False:
@@ -28,6 +29,16 @@ def process(uniqueID):
     if res_income['status'] == False:
         ApplicationService.update_status(applicationID, 8, f"{res_income['code']}_{res_income['message']}")
         return res_income
+
+    res_region = __score_region(districtID)
+    if res_region['status'] == False:
+        ApplicationService.update_status(applicationID, 8, f"{res_region['code']}_{res_region['message']}")
+        return res_region
+
+    res_phv = __score_phv()
+    if res_phv['status'] == False:
+        ApplicationService.update_status(applicationID, 8, f"{res_phv['code']}_{res_phv['message']}")
+        return res_phv
 
     ApplicationService.update_status(applicationID, 7, "Kiểm tra eligible và đang chờ PHV")
     return {
@@ -64,6 +75,17 @@ def __score_income(monthly_income):
     }
 
 def __score_region(district):
+    if district < 1:
+        return {
+            "status": False,
+            "message": "Địa chỉ tạm trú/ chỗ ở hiện tại không nằm trong danh sách hỗ trợ ",
+            "code": "ELI_COVR"
+        }
+    return {
+        "status": True
+    }
+
+def __score_phv():
     return {
         "status": True
     }
