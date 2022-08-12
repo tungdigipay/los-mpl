@@ -68,6 +68,12 @@ def submit(request):
     if application['status'] == False:
         return application
     
+    if application['data']['LOS_applications'] == []:
+        return {
+            "status": False,
+            "message": "Rất tiếc không thể hoàn tất hồ sơ!"
+        }
+
     applicationID = application['data']['LOS_applications'][0]['ID']
     customerID = application['data']['LOS_applications'][0]['customerID']
     customer_profileID = application['data']['LOS_applications'][0]['customer_profileID']
