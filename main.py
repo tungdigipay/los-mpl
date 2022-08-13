@@ -4,11 +4,8 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from apps import OTP, Files, Customers, Applications, Kyc, Hyperverge, Prescore
-# , Esign
-from helpers.CommonHelper import get_age
-from models import OtpModel, OcrModel, FileModel, ApplicationModel, KycModel, GraphqlModel
-# , EsignModel
+from apps import OTP, Files, Customers, Applications, Kyc, Hyperverge, Prescore, Esign
+from models import OtpModel, OcrModel, FileModel, ApplicationModel, KycModel, GraphqlModel, EsignModel
 
 from services import ApplicationService
 
@@ -81,13 +78,13 @@ async def m_actions(request: GraphqlModel.Item):
 async def login():
     return Hyperverge.login()
 
-# @app.post("/esign/preparing")
-# def esign_preparing(request: EsignModel.Preparing):
-#     return Esign.preparing(request.agreementUUID)
+@app.post("/esign/preparing")
+def esign_preparing(request: EsignModel.Preparing):
+    return Esign.preparing(request.agreementUUID)
 
-# @app.post("/esign/authorize")
-# def esign_authorize(request: EsignModel.Authorize):
-#     return Esign.authorize(request.agreementUUID, request.otpCode, request.billCode)
+@app.post("/esign/authorize")
+def esign_authorize(request: EsignModel.Authorize):
+    return Esign.authorize(request.agreementUUID, request.otpCode, request.billCode)
 
 @app.get("/kalapa/{item}")
 def kalapa(item):
@@ -96,3 +93,23 @@ def kalapa(item):
         return ApplicationService.check_mobilephone("0905044591")
     if item == "social_insurance":
         return ApplicationService.social_insurance("205341091")
+
+@app.get("/sms")
+def sms():
+    from services import SmsSevice
+    return SmsSevice.reject('0905044591')
+
+@app.post("/esign/verify")
+def sms(request: EsignModel.Verify):
+    from services import EsignService
+    return EsignService.verify(request)
+
+@app.post("/esign/otp")
+def sms(request: EsignModel.Otp):
+    from services import EsignService
+    return EsignService.otp(request)
+
+@app.post("/esign/confirm")
+def sms(request: EsignModel.Confirm):
+    from services import EsignService
+    return EsignService.process(request)
