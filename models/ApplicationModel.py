@@ -76,3 +76,6 @@ class Item(BaseModel):
 
 class Prescore(BaseModel):
     uniqueID: UUID
+
+class Score(BaseModel):
+    uniqueID: UUID

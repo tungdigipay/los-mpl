@@ -4,7 +4,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from apps import OTP, Files, Customers, Applications, Kyc, Hyperverge, Prescore, Esign
+from apps import OTP, Files, Customers, Applications, Kyc, Hyperverge, Prescore, Esign, Score
 from models import OtpModel, OcrModel, FileModel, ApplicationModel, KycModel, GraphqlModel, EsignModel
 
 from services import ApplicationService
@@ -36,7 +36,6 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 @app.get("/")
 def root():
-    return ApplicationService.mfast_blacklist("090111222", "0901112222")
     return "hello"
 
 @app.post("/otp/request")
@@ -67,6 +66,10 @@ async def application_submit(request: ApplicationModel.Item):
 @app.post("/applications/prescore")
 async def applications_prescore(request: ApplicationModel.Prescore):
     return Prescore.process(request.uniqueID)
+
+@app.post("/applications/score")
+async def applications_prescore(request: ApplicationModel.Score):
+    return Score.process(request.uniqueID)
 
 @app.post("/actions")
 async def m_actions(request: GraphqlModel.Item):
@@ -140,3 +143,7 @@ def matrix(dgp_rating, cs_grade):
         6: "Cancel",
     }
     return decisions[grade]
+
+@app.get("/cs")
+def social_insurance():
+    return ApplicationService.social_insurance("090111222")
