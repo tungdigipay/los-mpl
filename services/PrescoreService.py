@@ -78,7 +78,7 @@ def __score_income(monthly_income):
     }
 
 def __score_region(application):
-    if application['LOS_master_location']['allow'] != 1:
+    if application['LOS_customer_profile']['LOS_master_location']['allow'] != 1:
         return {
             "status": False,
             "message": "Địa chỉ tạm trú/ chỗ ở hiện tại không nằm trong danh sách hỗ trợ ",
@@ -115,9 +115,9 @@ def detail_by_appID(uniqueID):
             LOS_customer_profile {
                 currentAddressProvince
                 mobilePhone
-            }
-            LOS_master_location {
-                allow
+                LOS_master_location {
+                    allow
+                }
             }
             loanTenor
             statusID
