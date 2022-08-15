@@ -59,7 +59,7 @@ def detail_by_appID(uniqueID):
             }
             LOS_customer_profile {
                 mobilePhone
-                LOS_master_location {
+                current_LOS_master_location_district {
                     salaryRegion
                 }
                 LOS_master_marital_status{
@@ -211,7 +211,7 @@ def __ins_score(application):
     return data[0]['score']
 
 def __salary_region(application):
-    salaryRegion = application['LOS_customer_profile']['LOS_master_location']['salaryRegion']
+    salaryRegion = application['LOS_customer_profile']['current_LOS_master_location_district']['salaryRegion']
     if salaryRegion == 1:
         return salary_region_1, salary_hour_1
     if salaryRegion == 2:
