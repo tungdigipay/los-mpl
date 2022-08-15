@@ -62,9 +62,9 @@ def detail_by_appID(uniqueID):
                 LOS_master_marital_status{
                     score
                 }
-                LOS_master_employment_type {
-                    ID score
-                }
+            }
+            LOS_master_employee_type {
+                ID score
             }
             ID
             emi
@@ -140,7 +140,7 @@ def __get_matrix():
 def __dgp_rating(application):
     birthday = application['LOS_customer']['dateOfBirth']
     age = __dgp_age(birthday)
-    employment = application['LOS_customer_profile']['LOS_master_employment_type']['score']
+    employment = application['LOS_master_employment_type']['score']
     marital = application['LOS_master_marital_status']['score']
     gender = application['LOS_customer']['LOS_master_gender']['score']
     product = __dgp_product(application)
@@ -190,7 +190,7 @@ def __loan_fi(application):
     return 0
 
 def calc_income(application):
-    employmentID = application['LOS_customer_profile']['LOS_master_employment_type']['ID']
+    employmentID = application['LOS_master_employment_type']['ID']
     income = application['monthlyIncome'] * x1
     salary_region, salary_hour = __salary_region(application)
     
