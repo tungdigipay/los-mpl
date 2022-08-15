@@ -113,3 +113,30 @@ def sms(request: EsignModel.Otp):
 def sms(request: EsignModel.Confirm):
     from services import EsignService
     return EsignService.process(request)
+
+
+@app.get("/matrix/{dgp_rating}/{cs_grade}")
+def matrix(dgp_rating, cs_grade):
+    from services import ScoreService
+    marks = ["A+", "A", "B+", "B", "C", "D"]
+    dgp_index = marks.index(dgp_rating)
+    cs_index = marks.index(cs_grade)
+    matrix = [
+        [1, 1, 2, 2, 3, 5],
+        [2, 2, 3, 3, 3, 5],
+        [3, 3, 3, 3, 3, 5],
+        [4, 4, 4, 4, 5, 5],
+        [5, 5, 5, 5, 5, 6],
+        [6, 6, 6, 6, 6, 6]
+    ]
+
+    grade = matrix[dgp_index][cs_index]
+    decisions = {
+        1: "Approve",
+        2: "Approve",
+        3: "Manual",
+        4: "Cancel",
+        5: "Cancel",
+        6: "Cancel",
+    }
+    return decisions[grade]

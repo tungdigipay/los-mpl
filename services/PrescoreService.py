@@ -1,3 +1,4 @@
+from email.mime import application
 from services import ApplicationService
 from libraries import Hasura
 from helpers import CommonHelper
@@ -30,20 +31,22 @@ def process(uniqueID):
         ApplicationService.update_status(applicationID, 8, f"{res_income['code']}_{res_income['message']}")
         return res_income
 
-    res_region = __score_region(districtID)
+    res_region = __score_region(application)
     if res_region['status'] == False:
         ApplicationService.update_status(applicationID, 8, f"{res_region['code']}_{res_region['message']}")
         return res_region
 
+    ApplicationService.update_status(applicationID, 7, "Kiểm tra eligible và đang chờ PHV")
     res_phv = __score_phv()
     if res_phv['status'] == False:
         ApplicationService.update_status(applicationID, 8, f"{res_phv['code']}_{res_phv['message']}")
         return res_phv
 
-    ApplicationService.update_status(applicationID, 7, "Kiểm tra eligible và đang chờ PHV")
+    ApplicationService.update_status(applicationID, 6, "Kiểm tra eligible/PHV/credit score")
+
     return {
         "status": True,
-        "message": "Kiểm tra eligible và đang chờ PHV"
+        "message": "Kiểm tra eligible/PHV/credit score"
     }
 
 
@@ -74,8 +77,8 @@ def __score_income(monthly_income):
         "status": True
     }
 
-def __score_region(district):
-    if district < 1:
+def __score_region(application):
+    if application['LOS_master_location']['allow'] != 1:
         return {
             "status": False,
             "message": "Địa chỉ tạm trú/ chỗ ở hiện tại không nằm trong danh sách hỗ trợ ",
@@ -111,6 +114,9 @@ def detail_by_appID(uniqueID):
             reference2Relationship
             LOS_customer_profile {
                 currentAddressProvince
+            }
+            LOS_master_location {
+                allow
             }
             loanTenor
             statusID
