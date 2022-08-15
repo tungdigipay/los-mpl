@@ -71,6 +71,7 @@ def detail_by_appID(uniqueID):
             loanTenor
             statusID
             monthlyExpenses
+            monthlyIncome
         }
     }
     """ % (uniqueID)
@@ -181,8 +182,8 @@ def calc_ma(application):
     expense = calc_expense(application)
     return income - expense
 
-def calc_expense(application, income):
-    income = income * 0.6 - __loan_fi(application)
+def calc_expense(application):
+    income = application['monthlyIncome'] * 0.6 - __loan_fi(application)
     return max(income, application['monthlyExpenses'])
 
 def __loan_fi(application):
