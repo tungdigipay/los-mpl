@@ -13,17 +13,17 @@ def process(mobilePhone, sms_out):
     endpoint = configOTP['endpoint']
     url = f'{endpoint}/?u={u}&pwd={p}&from={f}&phone={mobilePhone}&sms={sms_out}'
 
-    log_res = __save_log(url)
-    if log_res['status'] == False:
-        return log_res
+    # log_res = __save_log(url)
+    # if log_res['status'] == False:
+    #     return log_res
 
-    logID = log_res['data']['ID']
+    # logID = log_res['data']['ID']
     
     response = requests.get(url)
     status_code = response.status_code
     res = response.text
     
-    __update_log(res, logID)
+    # __update_log(res, logID)
     return {
         "status": True,
         "data": res
