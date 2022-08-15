@@ -1,3 +1,4 @@
+import json
 from libraries import Hasura
 from services import ApplicationService
 from helpers import CommonHelper
@@ -158,7 +159,21 @@ def __dgp_rating(application):
     return "A+"
 
 def __cs_grade(application):
-    return "B"
+    cs = __credit_score(application)
+    if cs <= 0.46:
+        return "D", "Blackzone"
+    if cs <= 0.57:
+        return "C", "VH Risk"
+    if cs <= 0.63:
+        return "B", "High Risk"
+    if cs <= 0.75:
+        return "B+", "Med Risk"
+    if cs <=  0.97:
+        return "A", "Low Risk"
+    if cs > 0.97:
+        return "A+", "Low Risk"
+
+    return "D", "Blackzone"
 
 def calc_ma(application):
     income = calc_income(application)
@@ -170,6 +185,7 @@ def calc_expense(application, income):
     return max(income, application['monthlyExpenses'])
 
 def __loan_fi(application):
+    ## current not connect to Loan FI
     return 0
 
 def calc_income(application):
@@ -218,3 +234,7 @@ def __dgp_age(birthday):
 def __dgp_product(application):
     ## hiện tại chỉ cho trả góp gotit
     return 2
+
+def __credit_score(application):
+    data = json.loads('{"score":0.6835727978021092,"version":"SCORING_SOCIAL_FRAUD_20220627"}')
+    return data['score']
