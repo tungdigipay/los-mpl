@@ -152,3 +152,4 @@ cython_debug/
 #.idea/
 files/
 nohup.out
+configs.ini
