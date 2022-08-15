@@ -1,4 +1,5 @@
 from libraries import Kalapa, MFast, Hasura
+from services import SmsSevice
 
 def credit_score(idNumber, mobilePhone):
     return Kalapa.process("user-profile/scoring/social_fraud", "GET", {
@@ -136,7 +137,8 @@ def __check_dedup_in_los_refused(idNumber):
         "status": True
     }
 
-def update_status(appID, statusID, message):
+def update_status(application, statusID, message):
+    appID = application['ID']
     query = """
     mutation m_update_LOS_applications_by_pk {
         update_LOS_applications_by_pk(
@@ -157,6 +159,13 @@ def update_status(appID, statusID, message):
             "status": False,
             "message": res['message']
         }
+
+    ## send sms when rejected (canceled/ confused)
+    if statusID in [4, 5, 8, 9, 11, 12, 16, 17, 24]:
+        SmsSevice.reject(application['LOS_customer_profile']['mobilePhone'])
+
+    ## callback status to mfast via webhook
+    ## here..
 
     return {
         "status": True

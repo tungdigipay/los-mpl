@@ -23,26 +23,26 @@ def process(uniqueID):
 
     res_age = __score_age(birthday, loanTenor)
     if res_age['status'] == False:
-        ApplicationService.update_status(applicationID, 8, f"{res_age['code']}_{res_age['message']}")
+        ApplicationService.update_status(application, 8, f"{res_age['code']}_{res_age['message']}")
         return res_age
 
     res_income = __score_income(monthly_income)
     if res_income['status'] == False:
-        ApplicationService.update_status(applicationID, 8, f"{res_income['code']}_{res_income['message']}")
+        ApplicationService.update_status(application, 8, f"{res_income['code']}_{res_income['message']}")
         return res_income
 
     res_region = __score_region(application)
     if res_region['status'] == False:
-        ApplicationService.update_status(applicationID, 8, f"{res_region['code']}_{res_region['message']}")
+        ApplicationService.update_status(application, 8, f"{res_region['code']}_{res_region['message']}")
         return res_region
 
-    ApplicationService.update_status(applicationID, 7, "Kiểm tra eligible và đang chờ PHV")
+    ApplicationService.update_status(application, 7, "Kiểm tra eligible và đang chờ PHV")
     res_phv = __score_phv()
     if res_phv['status'] == False:
-        ApplicationService.update_status(applicationID, 8, f"{res_phv['code']}_{res_phv['message']}")
+        ApplicationService.update_status(application, 8, f"{res_phv['code']}_{res_phv['message']}")
         return res_phv
 
-    ApplicationService.update_status(applicationID, 6, "Kiểm tra eligible/PHV/credit score")
+    ApplicationService.update_status(application, 6, "Kiểm tra eligible/PHV/credit score")
 
     return {
         "status": True,
@@ -114,6 +114,7 @@ def detail_by_appID(uniqueID):
             reference2Relationship
             LOS_customer_profile {
                 currentAddressProvince
+                mobilePhone
             }
             LOS_master_location {
                 allow

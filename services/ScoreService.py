@@ -37,7 +37,7 @@ def process(uniqueID):
     applicationID = application['ID']
     res_brc = business_rule_check(application)
     if res_brc['status'] == False:
-        ApplicationService.update_status(applicationID, 16, f"{res_brc['code']}_{res_brc['message']}")
+        ApplicationService.update_status(application, 16, f"{res_brc['code']}_{res_brc['message']}")
         return res_brc
 
 def detail_by_appID(uniqueID):
@@ -58,6 +58,7 @@ def detail_by_appID(uniqueID):
                 ID score
             }
             LOS_customer_profile {
+                mobilePhone
                 LOS_master_location {
                     salaryRegion
                 }
@@ -202,7 +203,12 @@ def calc_income(application):
         return min(income, salara_by_hour)
 
 def __ins_score(application):
-    return 0.6
+    record = json.loads('{"sInfos":[]}')
+    data = record['sInfos']
+    if data == []:
+        return 0
+    
+    return data[0]['score']
 
 def __salary_region(application):
     salaryRegion = application['LOS_customer_profile']['LOS_master_location']['salaryRegion']
