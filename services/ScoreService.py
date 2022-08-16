@@ -1,6 +1,5 @@
 import json
 from libraries import Hasura
-from main import matrix
 from services import ApplicationService, EsignService
 from helpers import CommonHelper
 from repositories import ScoringReposirity
