@@ -1,7 +1,9 @@
 import json
 from libraries import Hasura
-from services import ApplicationService
+from main import matrix
+from services import ApplicationService, EsignService
 from helpers import CommonHelper
+from repositories import ScoringReposirity
 
 x1 = 0.75
 x2 = 200000
@@ -39,6 +41,32 @@ def process(uniqueID):
     if res_brc['status'] == False:
         ApplicationService.update_status(application, 16, f"{res_brc['code']}_{res_brc['message']}")
         return res_brc
+
+    logic_de = de_matrix(application)
+    if logic_de['status'] == False:
+        return logic_de
+
+    if logic_de['data']['decision'] == "Approve":
+        statusID = 10
+        note = "Hồ sơ auto approval hoặc CE approve"
+    elif logic_de['data']['decision'] == "Approve":
+        statusID = 13
+        note = "Kết quả DE vào nhóm Precise assessment và đang chờ CE xử lý"
+    else:
+        statusID = 12
+        note = "Hồ sơ auto refusal hoặc CE cancel"
+    
+    ApplicationService.update_status(application, statusID, note)
+
+    score_repo = {
+        "ma": res_brc['data']['ma'],
+        "dgp_rating": logic_de['dgp_rating'],
+        "cs_grade": logic_de['cs_grade'],
+        "decision_mark": logic_de['grade'],
+    }
+    ScoringReposirity.storage(application, score_repo)
+
+    return EsignService.preparing(application)
 
 def detail_by_appID(uniqueID):
     query = """
@@ -95,7 +123,10 @@ def business_rule_check(application):
         }
 
     return {
-        "status": True
+        "status": True,
+        "data": {
+            "ma": ma
+        }
     }
 
 def de_matrix(application):
@@ -113,7 +144,9 @@ def de_matrix(application):
         "status": True,
         "data": {
             "grade": grade,
-            "decision": decision
+            "decision": decision,
+            "dgp_rating": dgp_rating,
+            "cs_grade": cs_grade
         }
     }
 

@@ -1,4 +1,13 @@
 from repositories import OtpRepository
+from services import ApplicationService
+
+def preparing(application):
+    ApplicationService.update_status(application, 14 , "Đã sinh hợp đồng và chờ khách hàng ký")
+    return {
+        "status": True,
+        "message": "Đã sinh hợp đồng và chờ khách hàng ký"
+    }
+
 def verify(request):
     return {
         "status": True,
@@ -8,8 +17,7 @@ def verify(request):
     }
 
 def otp(request):
-    otpCode = "123456"
-    return OtpRepository.record_log("0905044591", otpCode, "successful")
+    return OtpRepository.record_log(request.mobilePhone, request.otpCode, "successful")
 
 def process(request):
     return {
