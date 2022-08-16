@@ -77,6 +77,7 @@ def detail_by_appID(uniqueID):
         ) {
             LOS_customer {
                 dateOfBirth
+                idNumber
                 LOS_master_gender{
                     score
                 }
@@ -236,8 +237,9 @@ def calc_income(application):
         return min(income, salara_by_hour)
 
 def __ins_score(application):
-    record = json.loads('{"sInfos":[]}')
-    data = record['sInfos']
+    idNumber = application['LOS_customer']['idNumber']
+    res = ApplicationService.social_insurance(idNumber)
+    data = res['data']['sInfos']
     if data == []:
         return 0
     
@@ -275,5 +277,8 @@ def __dgp_product(application):
     return 2
 
 def __credit_score(application):
-    data = json.loads('{"score":0.6835727978021092,"version":"SCORING_SOCIAL_FRAUD_20220627"}')
+    idNumber = application['LOS_customer']['idNumber']
+    mobilePhone = application['LOS_customer_profile']['mobilePhone']
+    res = ApplicationService.credit_score(idNumber, mobilePhone)
+    data = res['data']
     return data['score']
