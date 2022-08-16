@@ -1,11 +1,21 @@
 from repositories import OtpRepository
-from services import ApplicationService
+from services import SmsSevice
+from libraries import Hasura
 
 def preparing(application):
-    ApplicationService.update_status(application, 14 , "Đã sinh hợp đồng và chờ khách hàng ký")
+    contract_number = __gen_contract_number(application)
+
+    note = "Đã sinh hợp đồng và chờ khách hàng ký"
+    __update_application(application, {
+        "statusID": 14,
+        "note": note,
+        "contractNumber": contract_number
+    })
+
+    __send_sms(application, contract_number)
     return {
         "status": True,
-        "message": "Đã sinh hợp đồng và chờ khách hàng ký"
+        "message": note
     }
 
 def verify(request):
@@ -24,3 +34,56 @@ def process(request):
         "status": True,
         "message": "Thành công"
     }
+
+def __gen_contract_number(application):
+    from datetime import date
+    today = date.today()
+
+    applicationID = application['ID']
+    applicationID_text = str(applicationID)
+    if applicationID > 10000: applicationID_text = applicationID_text[-4:len(applicationID_text)]
+    else: applicationID_text = applicationID_text.zfill(4)
+
+    contract_number = "11" + today.strftime("%y%m%d") + applicationID_text
+    return contract_number
+
+def __update_application(application, data):
+    appID = application['ID']
+    objects = create_objects(data)
+    query = """
+    mutation m_update_LOS_applications_by_pk {
+        update_LOS_applications_by_pk(
+            pk_columns: { ID: %d }, 
+            _set: { %s }
+        ) {
+            ID
+        }
+    }
+    """ % (appID, objects)
+
+    res = Hasura.process("m_update_LOS_applications_by_pk", query)
+    if res['status'] == False:
+        return {
+            "status": False,
+            "message": res['message']
+        }
+
+    return {
+        "status": True
+    }
+
+def create_objects(data) -> str:
+    objects = ""
+    if 'statusID' in data:
+        objects += "statusID: %d, " % (data['statusID'])
+    if 'note' in data:
+        objects += 'note: "%s", ' % (data['note'])
+    if 'contractNumber' in data:
+        objects += 'contractNumber: "%s", ' % (data['contractNumber'])
+
+    return objects
+
+def __send_sms(application, contract_number):
+    mobilePhone = application['LOS_customer_profile']['mobilePhone']
+    link = "tai day"
+    SmsSevice.approve(mobilePhone, contract_number, link)
