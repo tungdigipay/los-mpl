@@ -38,7 +38,7 @@ def process(uniqueID):
     applicationID = application['ID']
     res_brc = business_rule_check(application)
     if res_brc['status'] == False:
-        ApplicationService.update_status(application, 16, f"{res_brc['code']}_{res_brc['message']}")
+        ApplicationService.update_status(application, 12, f"{res_brc['code']}_{res_brc['message']}")
         return res_brc
 
     logic_de = de_matrix(application)
@@ -53,7 +53,7 @@ def process(uniqueID):
         note = "Kết quả DE vào nhóm Precise assessment và đang chờ CE xử lý"
     else:
         statusID = 12
-        note = "Hồ sơ auto refusal hoặc CE cancel"
+        note = "DGP cus rate %s and CS grade %s" % (logic_de['dgp_rating'], logic_de['cs_grade'])
     
     ApplicationService.update_status(application, statusID, note)
 
@@ -118,8 +118,8 @@ def business_rule_check(application):
     if emi > ma:
         return {
             "status": False,
-            "message": "Hồ sơ auto refusal hoặc CE cancel",
-            "code": "SGN_canceled"
+            "message": "EMI cao hơn mức sống theo quy định ",
+            "code": "EMI_EMAR"
         }
 
     return {
