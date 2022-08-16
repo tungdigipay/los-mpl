@@ -1,6 +1,7 @@
-from repositories import OtpRepository
+from repositories import OtpRepository, EsignRepository
 from services import SmsSevice
 from libraries import Hasura
+import random, string
 
 def preparing(application):
     contract_number = __gen_contract_number(application)
@@ -12,13 +13,20 @@ def preparing(application):
         "contractNumber": contract_number
     })
 
-    __send_sms(application, contract_number)
+    EsignRepository.storage(application, {
+        'esignPwd': _create_pwd(),
+        "contractFile": "/files/esign/contract.signed.pdf"
+    })
+
+    # __send_sms(application, contract_number)
     return {
         "status": True,
-        "message": note
+        "message": "Đã sinh hợp đồng và chờ khách hàng ký"
     }
 
 def verify(request):
+    res = EsignRepository.verify_application(request.contractNumber, request.idNumber, request.password)
+    return res
     return {
         "status": True,
         "data": {
@@ -87,3 +95,6 @@ def __send_sms(application, contract_number):
     mobilePhone = application['LOS_customer_profile']['mobilePhone']
     link = "tai day"
     SmsSevice.approve(mobilePhone, contract_number, link)
+
+def _create_pwd() -> str:
+    return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(6))

@@ -104,17 +104,17 @@ def sms():
     return SmsSevice.reject('0905044591')
 
 @app.post("/esign/verify")
-def sms(request: EsignModel.Verify):
-    from services import EsignService
-    return EsignService.verify(request)
+def esign_verify(request: EsignModel.Verify):
+    return Esign.verify(request)
 
 @app.post("/esign/otp")
-def sms(request: EsignModel.Otp):
-    from services import EsignService
-    return EsignService.otp(request)
+def esign_otp(request: EsignModel.Otp):
+    return {
+        "uniqueID": "3f7836d6-2651-4a4a-8159-cb78c42c4ea2"
+    }
 
 @app.post("/esign/confirm")
-def sms(request: EsignModel.Confirm):
+def esign_confirm(request: EsignModel.Confirm):
     from services import EsignService
     return EsignService.process(request)
 
@@ -166,3 +166,8 @@ def social_insurance():
     #     "dgp_rating": "A"
     # })
     # return ApplicationService.social_insurance("090111222")
+
+@app.get("/pdf")
+async def pdf():
+    from libraries import CreatePDF
+    return CreatePDF.gen()
