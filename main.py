@@ -147,4 +147,22 @@ def matrix(dgp_rating, cs_grade):
 
 @app.get("/cs")
 def social_insurance():
-    return ApplicationService.social_insurance("090111222")
+    from datetime import date
+    today = date.today()
+    contract_number = "11" + today.strftime("%y%m%d")
+
+    applicationID = 123456789
+    applicationID_text = str(applicationID)
+    if applicationID > 10000: applicationID_text = applicationID_text[-4:len(applicationID_text)]
+    else: applicationID_text = applicationID_text.zfill(4)
+    return applicationID_text
+    
+
+    return contract_number + applicationID_text
+    # from repositories import ScoringReposirity
+    # return ScoringReposirity.storage({
+    #     "ID": 124
+    # }, {
+    #     "dgp_rating": "A"
+    # })
+    # return ApplicationService.social_insurance("090111222")

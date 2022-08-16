@@ -38,6 +38,9 @@ def process(uniqueID):
     applicationID = application['ID']
     res_brc = business_rule_check(application)
     if res_brc['status'] == False:
+        ScoringReposirity.storage(application, {
+            "ma": res_brc['data']['ma'],
+        })
         ApplicationService.update_status(application, 12, f"{res_brc['code']}_{res_brc['message']}")
         return res_brc
 
@@ -119,7 +122,10 @@ def business_rule_check(application):
         return {
             "status": False,
             "message": "EMI cao hơn mức sống theo quy định ",
-            "code": "EMI_EMAR"
+            "code": "EMI_EMAR",
+            "data": {
+                "ma": ma
+            }
         }
 
     return {
