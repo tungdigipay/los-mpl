@@ -1,5 +1,6 @@
 from pydantic import BaseModel, validator, Field
 from typing import Union
+from uuid import UUID
 
 class Preparing(BaseModel):
     agreementUUID: str
@@ -21,7 +22,7 @@ class Verify(BaseModel):
         return v
 
 class Otp(BaseModel):
-    contractNumber: str
+    uniqueID: UUID
 
 class Confirm(BaseModel):
     UUID: str
