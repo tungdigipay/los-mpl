@@ -104,6 +104,9 @@ def verify_application(contractNumber, idNumber, esignPwd):
                 LOS_customer_ocrs {
                     idNumberFrontImage
                 }
+                LOS_customer_profile {
+                    mobilePhone
+                }
             }
         }
     }

@@ -16,10 +16,10 @@ def preparing(application):
 
     EsignRepository.storage(application, {
         'esignPwd': esignPwd,
-        "contractFile": "/files/esign/contract.signed.pdf"
+        "contractFile": "https://s3-sgn09.fptcloud.com/appay.cloudcms/contract_template.pdf"
     })
 
-    # __send_sms(application, contract_number)
+    __send_sms(application, contract_number)
     return {
         "status": True,
         "message": "Đã sinh hợp đồng và chờ khách hàng ký"
@@ -31,7 +31,7 @@ def verify(request):
     return {
         "status": True,
         "data": {
-            'contractLink': "/files/esign/contract.signed.pdf"
+            'contractLink': "https://s3-sgn09.fptcloud.com/appay.cloudcms/contract_template.pdf"
         }
     }
 
