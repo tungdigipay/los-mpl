@@ -36,10 +36,3 @@ class Confirm(BaseModel):
             raise ValueError("Length must be 6")
 
         return v
-
-    @validator('UUID')
-    def UUID_validator(cls, v):
-        from helpers.CommonHelper import is_uuid
-        if is_uuid(v) == False:
-            raise ValueError("UUID không hợp lệ")
-        return v
