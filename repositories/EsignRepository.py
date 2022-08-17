@@ -101,6 +101,7 @@ def verify_application(contractNumber, idNumber, esignPwd):
             contractFile
             LOS_application {
                 ID
+                uniqueID
                 LOS_customer_ocrs {
                     idNumberFrontImage
                 }
@@ -112,6 +113,25 @@ def verify_application(contractNumber, idNumber, esignPwd):
     }
     """ % (contractNumber, idNumber, esignPwd)
     res = Hasura.process("q_LOS_application_esigns", query)
+    if res['status'] == False:
+        return res
+
+    return {
+        "status": True,
+        "data": res['data']['LOS_application_esigns']
+    }
+
+def detail_for_esign(uniqueID):
+    query = """
+    query q_detail_for_esign {
+        LOS_applications(
+            where: { uniqueID: {_eq: "%s"} }
+        ) {
+            ID
+        }
+    }
+    """ % (uniqueID)
+    res = Hasura.process("q_detail_for_esign", query)
     if res['status'] == False:
         return res
 
