@@ -10,6 +10,17 @@ def authorize(agreementUUID, otpCode, BillCode):
     EsignFPT.authorizeCounterSigningForSignCloud(agreementUUID, otpCode, BillCode)
 
 def verify(request):
+    ## sample data 
+    idNumberFrontImage = "https://s3-sgn09.fptcloud.com/appay.cloudcms/20220816140335zmt59khvfi.jpg"
+    encoded_string = base64.b64encode(requests.get(idNumberFrontImage).content)
+    return {
+        "status": True,
+        "data": {
+            "contractFile": "/files/esign/contract.signed.pdf",
+            "idNumberFrontImage": encoded_string
+        }
+    }
+
     res = EsignService.verify(request)
     if res['status'] == False:
         return res

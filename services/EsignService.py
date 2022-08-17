@@ -7,6 +7,7 @@ def preparing(application):
     contract_number = __gen_contract_number(application)
 
     note = "Đã sinh hợp đồng và chờ khách hàng ký"
+    esignPwd = __create_pwd()
     __update_application(application, {
         "statusID": 14,
         "note": note,
@@ -14,7 +15,7 @@ def preparing(application):
     })
 
     EsignRepository.storage(application, {
-        'esignPwd': _create_pwd(),
+        'esignPwd': esignPwd,
         "contractFile": "/files/esign/contract.signed.pdf"
     })
 
@@ -96,5 +97,5 @@ def __send_sms(application, contract_number):
     link = "tai day"
     SmsSevice.approve(mobilePhone, contract_number, link)
 
-def _create_pwd() -> str:
+def __create_pwd() -> str:
     return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(6))
