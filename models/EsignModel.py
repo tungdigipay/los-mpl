@@ -34,5 +34,4 @@ class Confirm(BaseModel):
             raise ValueError("Not number")
         if len(v) != 6:
             raise ValueError("Length must be 6")
-
         return v
