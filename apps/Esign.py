@@ -1,5 +1,6 @@
 from libraries import EsignFPT
 from services import EsignService
+from repositories import EsignRepository
 import base64, requests
 
 def preparing(agreementUUID):
@@ -10,17 +11,6 @@ def authorize(agreementUUID, otpCode, BillCode):
     EsignFPT.authorizeCounterSigningForSignCloud(agreementUUID, otpCode, BillCode)
 
 def verify(request):
-    ## sample data 
-    # idNumberFrontImage = "https://s3-sgn09.fptcloud.com/appay.cloudcms/20220816140335zmt59khvfi.jpg"
-    # encoded_string = base64.b64encode(requests.get(idNumberFrontImage).content)
-    # return {
-    #     "status": True,
-    #     "data": {
-    #         "contractFile": "https://s3-sgn09.fptcloud.com/appay.cloudcms/contract_template.pdf",
-    #         "idNumberFrontImage": encoded_string
-    #     }
-    # }
-
     res = EsignService.verify(request)
     if res['status'] == False:
         return res
@@ -41,9 +31,22 @@ def verify(request):
         "data": {
             "contractFile": data['contractFile'],
             "idNumberFrontImage": encoded_string,
-            "mobilePhone": data['LOS_application']['LOS_customer_profile']['mobilePhone']
+            "mobilePhone": data['LOS_application']['LOS_customer_profile']['mobilePhone'],
+            "uniqueID": data['LOS_application']['uniqueID']
         }
     }
 
-def request_otp():
-    pass
+def request_otp(request):
+    application = EsignRepository.detail_for_esign(request.uniqueID)
+    return application
+    agreementUUID = gen_agreementUUID()
+
+    EsignFPT.prepareCertificateForSignCloud(agreementUUID)
+    return EsignFPT.prepareFileForSignCloud(agreementUUID)
+
+def gen_agreementUUID():
+    from datetime import datetime
+    import random, string
+    today = datetime.now()
+    ran = ''.join(random.choice(string.digits) for _ in range(4))
+    return today.strftime("%Y%m%d%H%M%S") + ran
