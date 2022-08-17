@@ -25,7 +25,7 @@ class Otp(BaseModel):
     uniqueID: UUID
 
 class Confirm(BaseModel):
-    UUID: str
+    uniqueID: UUID
     otpCode: str
 
     @validator('otpCode')
