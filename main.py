@@ -109,14 +109,19 @@ def esign_verify(request: EsignModel.Verify):
 
 @app.post("/esign/otp")
 def esign_otp(request: EsignModel.Otp):
+    # return Esign.request_otp(request)
     return {
         "uniqueID": "3f7836d6-2651-4a4a-8159-cb78c42c4ea2"
     }
 
 @app.post("/esign/confirm")
 def esign_confirm(request: EsignModel.Confirm):
-    from services import EsignService
-    return EsignService.process(request)
+    # from services import EsignService
+    # return EsignService.process(request)
+    return {
+        "status": True,
+        "message": "Thành công"
+    }
 
 
 @app.get("/matrix/{dgp_rating}/{cs_grade}")
@@ -169,5 +174,8 @@ def social_insurance():
 
 @app.get("/pdf")
 async def pdf():
-    from libraries import CreatePDF
-    return CreatePDF.gen()
+    from libraries import S3
+    file_uploaded = S3.upload("files/esign/contract_template.pdf", "contract_template.pdf")
+    return file_uploaded
+    # from libraries import CreatePDF
+    # return CreatePDF.gen()
