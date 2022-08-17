@@ -16,7 +16,7 @@ def verify(request):
     return {
         "status": True,
         "data": {
-            "contractFile": "/files/esign/contract.signed.pdf",
+            "contractFile": "https://s3-sgn09.fptcloud.com/appay.cloudcms/contract_template.pdf",
             "idNumberFrontImage": encoded_string
         }
     }
