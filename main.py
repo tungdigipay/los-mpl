@@ -109,7 +109,7 @@ def esign_verify(request: EsignModel.Verify):
 
 @app.post("/esign/otp")
 def esign_otp(request: EsignModel.Otp):
-    # return Esign.request_otp(request)
+    return Esign.request_otp(request)
     return {
         "uniqueID": "3f7836d6-2651-4a4a-8159-cb78c42c4ea2"
     }

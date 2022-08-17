@@ -1,5 +1,6 @@
-import sys
+import sys, requests
 from imp import reload
+from repositories import FptEsignRepository
 
 # from Tools.scripts.treesync import raw_input
 
@@ -53,17 +54,18 @@ c = constant.eSignCloudContant()
 currenttimemillis = lambda: int(round(time.time() * 1000))
 
 
-def prepareCertificateForSignCloud(agreementUUID):
-    personalid = '1234567890'
-    personalname = 'Nguyen Van A'
-    location = 'Quận 3'
-    stateprovince = 'Hồ Chí Minh'
+def prepareCertificateForSignCloud(agreementUUID, data):
+    personalid = data['idNumber']
+    personalname = data['customerName']
+    location = data['address']
+    stateprovince = data['city']
     country = 'VN'
     certificateprofile = 'PERS.1D'
-    authorizationemail = 'tung.nguyenthanh@digipaysolution.com'
-    authorizationmobileno = '0905044591'
-    imgfront = _b64encode(open('files/esign/front.jpg', 'rb').read())
-    imgback = _b64encode(open('files/esign/back.jpg', 'rb').read())
+    authorizationemail = data['customerEmail']
+    authorizationmobileno = data['customerPhone']
+    imgfront = _b64encode(requests.get(data['idNumberFrontImage']).content)
+    print(imgfront)
+    imgback = _b64encode(requests.get(data['idNumberBackImage']).content)
 
     timestamp = str(currenttimemillis())
     datatobesign = relyingPartyUser + relyingPartyPassword + relyingPartySignature + timestamp
@@ -100,23 +102,33 @@ def prepareCertificateForSignCloud(agreementUUID):
     response = requests.post(URL + FUNCTION_PREPARECERTIFICATEFORSIGNCLOUD, data=payload)
     # print('Response: ' + response.text)
     signcloudresp = json.loads(response.text)
+
+    FptEsignRepository.storage(data['applicationID'], {
+        "payload": json.dumps(data),
+        "response": response.text
+    })
+
     if signcloudresp['responseCode'] == 0:
-        print(signcloudresp['responseMessage'])
+        return {
+            "status": True,
+            "data": signcloudresp
+        }
     else:
+        return {
+            "status": False,
+            "message": signcloudresp['responseMessage']
+        }
         print(signcloudresp['responseCode'])
         print(signcloudresp['responseMessage'])
 
-    return response.text
-
-
-def prepareFileForSignCloud(agreementUUID):
+def prepareFileForSignCloud(agreementUUID, data):
     timestamp = str(currenttimemillis())
     datatobesign = relyingPartyUser + relyingPartyPassword + relyingPartySignature + timestamp
     pkcs1Signature = generatePKCS1Signature(datatobesign)
 
     authorizeMethod = str(c.AUTHORISATION_METHOD_SMS)
-    signingFileData = _b64encode(open('files/esign/sample.pdf', 'rb').read())
-    signingFileName = 'sample.pdf'
+    signingFileData = _b64encode(requests.get(data['contractFile']).content)
+    signingFileName = data['contractFileName']
     mimetype = c.MIMETYPE_PDF
     smsMessage = '[FPT-CA] Ma xac thuc (OTP) cua Quy khach la {AuthorizeCode}. Vui long dien ma so nay de ky Hop dong Dien Tu va khong cung cap OTP cho bat ky ai'
     messagingmode = str(c.ASYNCHRONOUS_CLIENTSERVER)
@@ -185,18 +197,29 @@ def prepareFileForSignCloud(agreementUUID):
     payload += "}"
 
     payload = payload.encode('utf-8')
-
     response = requests.post(URL + FUNCTION_PREPAREFILEFORSIGNCLOUD, data=payload)
-    print('Response: ' + response.text)
     signcloudresp = json.loads(response.text)
-    if signcloudresp['responseCode'] == 1007:
-        print(signcloudresp['responseMessage'])
-        print('BillCode:' + signcloudresp['billCode'])
-    else:
-        print(signcloudresp['responseCode'])
-        print(signcloudresp['responseMessage'])
+    
+    FptEsignRepository.storage(data['applicationID'], {
+        "payload": json.dumps(data),
+        "response": response.text,
+        "otpCode": signcloudresp['authorizeCredential']
+    })
 
-    return response.text
+    if signcloudresp['responseCode'] == 1007:
+        # print(signcloudresp['responseMessage'])
+        # print('BillCode:' + signcloudresp['billCode'])
+        return {
+            "status": True,
+            "data": signcloudresp
+        }
+    else:
+        return {
+            "status": False,
+            "message": signcloudresp['responseMessage']
+        }
+        # print(signcloudresp['responseCode'])
+        # print(signcloudresp['responseMessage'])
 
 def authorizeCounterSigningForSignCloud(agreementUUID, otpCode, BillCode):
     authorizecode = otpCode

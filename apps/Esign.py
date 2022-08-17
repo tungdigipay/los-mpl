@@ -38,11 +38,46 @@ def verify(request):
 
 def request_otp(request):
     application = EsignRepository.detail_for_esign(request.uniqueID)
-    return application
+    if application['status'] == False:
+        return application
+
+    if application['data'] == []:
+        return {
+            "status": False,
+            "message": "Hồ sơ không hợp lệ"
+        }
+    application = application['data'][0]
+
     agreementUUID = gen_agreementUUID()
 
-    EsignFPT.prepareCertificateForSignCloud(agreementUUID)
-    return EsignFPT.prepareFileForSignCloud(agreementUUID)
+    data = {
+        "applicationID": application['ID'],
+        "idNumber": application['LOS_customer']['idNumber'],
+        "customerName": application['LOS_customer']['fullName'],
+        "customerPhone": application['LOS_customer_profile']['mobilePhone'],
+        "customerEmail": application['LOS_customer_profile']['email'],
+        "city": application['LOS_customer_profile']['current_LOS_master_location_province']['name'],
+        "address": application['LOS_customer_profile']['currentAddressDetail'] + ", " + application['LOS_customer_profile']['current_LOS_master_location_district']['name'],
+        "idNumberFrontImage": application['LOS_customer_ocrs'][0]['idNumberFrontImage'],
+        "idNumberBackImage": application['LOS_customer_ocrs'][0]['idNumberBackImage'],
+        "contractFile": application['LOS_application_esign']['contractFile'],
+        "contractFileName": "sample.pdf"
+    }
+    prepare = EsignFPT.prepareCertificateForSignCloud(agreementUUID, data)
+    if prepare['status'] == False:
+        return prepare
+
+    sign = EsignFPT.prepareFileForSignCloud(agreementUUID, data)
+    if sign['status'] == False:
+        return sign
+
+    return {
+        "status": True,
+        "data": {
+            "uniqueID": request.uniqueID
+        }
+    }
+
 
 def gen_agreementUUID():
     from datetime import datetime

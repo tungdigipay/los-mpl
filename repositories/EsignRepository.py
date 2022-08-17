@@ -128,6 +128,23 @@ def detail_for_esign(uniqueID):
             where: { uniqueID: {_eq: "%s"} }
         ) {
             ID
+            LOS_customer{ idNumber fullName }
+            LOS_customer_profile{ 
+                mobilePhone email currentAddressDetail
+                current_LOS_master_location_district{
+                    name
+                }
+                current_LOS_master_location_province {
+                    name
+                }
+            }
+            LOS_customer_ocrs {
+                idNumberBackImage
+                idNumberFrontImage
+            }
+            LOS_application_esign {
+                contractFile
+            }
         }
     }
     """ % (uniqueID)
@@ -137,5 +154,5 @@ def detail_for_esign(uniqueID):
 
     return {
         "status": True,
-        "data": res['data']['LOS_application_esigns']
+        "data": res['data']['LOS_applications']
     }
