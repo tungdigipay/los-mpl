@@ -64,13 +64,21 @@ async def ocr_storage(request: KycModel.Item):
 async def application_submit(request: ApplicationModel.Item):
     return Applications.submit(request)
 
-@app.post("/applications/prescore")
-async def applications_prescore(request: ApplicationModel.Prescore):
-    return Prescore.process(request.uniqueID)
+# @app.post("/applications/prescore")
+# async def applications_prescore(request: ApplicationModel.Prescore):
+#     return Prescore.process(request.uniqueID)
 
-@app.post("/applications/score")
-async def applications_prescore(request: ApplicationModel.Score):
-    return Score.process(request.uniqueID)
+@app.get("/applications/prescore")
+async def applications_prescore(uniqueID: str):
+    return Prescore.process(uniqueID)
+
+@app.get("/applications/score")
+async def applications_prescore(uniqueID: str):
+    return Score.process(uniqueID)
+
+# @app.post("/applications/score")
+# async def applications_prescore(request: ApplicationModel.Score):
+#     return Score.process(request.uniqueID)
 
 @app.post("/actions")
 async def m_actions(request: GraphqlModel.Item):

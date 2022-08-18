@@ -2,6 +2,8 @@ from email.mime import application
 from services import ApplicationService
 from libraries import Hasura
 from helpers import CommonHelper
+from multiprocessing.dummy import Pool
+import requests
 
 def process(uniqueID):
     application = detail_by_appID(uniqueID)
@@ -44,6 +46,8 @@ def process(uniqueID):
 
     ApplicationService.update_status(application, 6, "Kiểm tra eligible/PHV/credit score")
 
+    pool = Pool(1)
+    pool.apply_async(requests.get, ['https://mpl-rc.mfast.vn/applications/score?uniqueID=' + uniqueID])
     return {
         "status": True,
         "message": "Kiểm tra eligible/PHV/credit score"

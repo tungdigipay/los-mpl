@@ -1,5 +1,7 @@
 from repositories import ApplicationRepository, CustomerRepository
 from services import OtpService, DgpService, ApplicationService
+from multiprocessing.dummy import Pool
+import requests
 
 def init(request):
     data = {
@@ -119,9 +121,12 @@ def submit(request):
     if res['status'] == False:
         return res
 
+    uniqueID = res['data']['update_LOS_applications']['returning'][0]['uniqueID']
+    pool = Pool(1)
+    pool.apply_async(requests.get, ['https://mpl-rc.mfast.vn/applications/prescore?uniqueID=' + uniqueID])
     return {
         "status": True,
         "data": {
-            "uniqueID": res['data']['update_LOS_applications']['returning'][0]['uniqueID']
+            "uniqueID": uniqueID
         }
     }

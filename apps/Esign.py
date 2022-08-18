@@ -1,5 +1,5 @@
 from libraries import EsignFPT
-from services import EsignService, SmsSevice
+from services import EsignService, SmsSevice, ApplicationService
 from repositories import EsignRepository
 import base64, requests
 
@@ -30,6 +30,7 @@ def confirm(request):
     if res['status'] == False:
         return res
 
+    ApplicationService.update_status(application, 15, "Khách hàng ký hợp đồng thành công")
     return {
         "status": True,
         "message": "Thành công"
