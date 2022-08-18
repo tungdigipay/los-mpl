@@ -61,6 +61,12 @@ def create_objects(data) -> str:
         objects += 'esignPwd: "%s", ' % (data['esignPwd'])
     if 'contractFile' in data:
         objects += 'contractFile: "%s", ' % (data['contractFile'])
+    if 'agreementUUID' in data:
+        objects += 'agreementUUID: "%s", ' % (data['agreementUUID'])
+    if 'billCode' in data:
+        objects += 'billCode: "%s", ' % (data['billCode'])
+    if 'otpCode' in data:
+        objects += 'otpCode: "%s", ' % (data['otpCode'])
 
     return objects
 
@@ -144,6 +150,8 @@ def detail_for_esign(uniqueID):
             }
             LOS_application_esign {
                 contractFile
+                agreementUUID
+                billCode
             }
         }
     }

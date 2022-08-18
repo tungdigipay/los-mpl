@@ -1,5 +1,5 @@
 from libraries import EsignFPT
-from services import EsignService
+from services import EsignService, SmsSevice
 from repositories import EsignRepository
 import base64, requests
 
@@ -7,8 +7,33 @@ def preparing(agreementUUID):
     EsignFPT.prepareCertificateForSignCloud(agreementUUID)
     return EsignFPT.prepareFileForSignCloud(agreementUUID)
 
-def authorize(agreementUUID, otpCode, BillCode):
-    EsignFPT.authorizeCounterSigningForSignCloud(agreementUUID, otpCode, BillCode)
+def confirm(request):
+    application = EsignRepository.detail_for_esign(request.uniqueID)
+    if application['status'] == False:
+        return application
+
+    if application['data'] == []:
+        return {
+            "status": False,
+            "message": "Hồ sơ không hợp lệ"
+        }
+    application = application['data'][0]
+    agreementUUID = application['LOS_application_esign']['agreementUUID']
+    BillCode = application['LOS_application_esign']['billCode']
+    otpCode = request.otpCode
+
+    res = EsignFPT.authorizeCounterSigningForSignCloud(agreementUUID, otpCode, BillCode)
+    if res['status'] == False:
+        return res
+
+    res = EsignFPT.regenerateAuthorizationCodeForSignCloud(agreementUUID)
+    if res['status'] == False:
+        return res
+
+    return {
+        "status": True,
+        "message": "Thành công"
+    }
 
 def verify(request):
     res = EsignService.verify(request)
@@ -48,7 +73,10 @@ def request_otp(request):
         }
     application = application['data'][0]
 
-    agreementUUID = gen_agreementUUID()
+    if application['LOS_application_esign']['agreementUUID'] == None:
+        agreementUUID = gen_agreementUUID()
+    else: 
+        agreementUUID = application['LOS_application_esign']['agreementUUID']
 
     data = {
         "applicationID": application['ID'],
@@ -71,13 +99,21 @@ def request_otp(request):
     if sign['status'] == False:
         return sign
 
+    EsignRepository.storage(application, {
+        "otpCode": sign['data']['authorizeCredential'],
+        "agreementUUID": agreementUUID,
+        "billCode": sign['data']['billCode']
+    })
+
+    SmsSevice.esign(application['LOS_customer_profile']['mobilePhone'], sign['data']['notificationMessage'])
+
     return {
         "status": True,
         "data": {
-            "uniqueID": request.uniqueID
+            "uniqueID": request.uniqueID,
+            "sms": sign['data']['notificationMessage']
         }
     }
-
 
 def gen_agreementUUID():
     from datetime import datetime

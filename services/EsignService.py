@@ -28,12 +28,6 @@ def preparing(application):
 def verify(request):
     res = EsignRepository.verify_application(request.contractNumber, request.idNumber, request.password)
     return res
-    return {
-        "status": True,
-        "data": {
-            'contractLink': "https://s3-sgn09.fptcloud.com/appay.cloudcms/contract_template.pdf"
-        }
-    }
 
 def otp(request):
     return OtpRepository.record_log(request.mobilePhone, request.otpCode, "successful")

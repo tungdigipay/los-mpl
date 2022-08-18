@@ -110,18 +110,10 @@ def esign_verify(request: EsignModel.Verify):
 @app.post("/esign/otp")
 def esign_otp(request: EsignModel.Otp):
     return Esign.request_otp(request)
-    return {
-        "uniqueID": "3f7836d6-2651-4a4a-8159-cb78c42c4ea2"
-    }
 
 @app.post("/esign/confirm")
 def esign_confirm(request: EsignModel.Confirm):
-    # from services import EsignService
-    # return EsignService.process(request)
-    return {
-        "status": True,
-        "message": "Thành công"
-    }
+    return Esign.confirm(request)
 
 
 @app.get("/matrix/{dgp_rating}/{cs_grade}")

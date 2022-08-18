@@ -12,5 +12,8 @@ def delivery(mobilePhone, brandName, eVoucher):
     sms_out = f"Ma su dung {brandName} cua QK là: {eVoucher}. Tran trong."
     return __process(mobilePhone, sms_out)
 
+def esign(mobilePhone, sms_out):
+    return __process(mobilePhone, sms_out)
+
 def __process(mobilePhone, sms_out):
     return Sms.process(mobilePhone, sms_out)

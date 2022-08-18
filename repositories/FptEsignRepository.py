@@ -1,7 +1,7 @@
 from libraries import Hasura
 
 def storage(applicationID, data):
-    detail = detail_by_appID(applicationID)
+    # detail = detail_by_appID(applicationID)
     return __insert(applicationID, data)
     # if detail['status'] == True and detail['data'] != []:
     #     return __update(detail['data'][0]['ID'], data)

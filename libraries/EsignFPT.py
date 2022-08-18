@@ -64,7 +64,7 @@ def prepareCertificateForSignCloud(agreementUUID, data):
     authorizationemail = data['customerEmail']
     authorizationmobileno = data['customerPhone']
     imgfront = _b64encode(requests.get(data['idNumberFrontImage']).content)
-    print(imgfront)
+    # print(imgfront)
     imgback = _b64encode(requests.get(data['idNumberBackImage']).content)
 
     timestamp = str(currenttimemillis())
@@ -108,7 +108,7 @@ def prepareCertificateForSignCloud(agreementUUID, data):
         "response": response.text
     })
 
-    if signcloudresp['responseCode'] == 0:
+    if signcloudresp['responseCode'] == 0 or signcloudresp['responseCode'] == 1010:
         return {
             "status": True,
             "data": signcloudresp
@@ -203,7 +203,9 @@ def prepareFileForSignCloud(agreementUUID, data):
     FptEsignRepository.storage(data['applicationID'], {
         "payload": json.dumps(data),
         "response": response.text,
-        "otpCode": signcloudresp['authorizeCredential']
+        "otpCode": signcloudresp['authorizeCredential'],
+        "agreementUUID": agreementUUID,
+        "billCode": signcloudresp['billCode']
     })
 
     if signcloudresp['responseCode'] == 1007:
@@ -246,21 +248,30 @@ def authorizeCounterSigningForSignCloud(agreementUUID, otpCode, BillCode):
     payload += "}"
 
     response = requests.post(URL + FUNCTION_AUTHORIZECOUNTERSIGNINGFORSIGNCLOUD, data=payload)  # verify=True
-    print('Response: ' + response.text)
+    # print('Response: ' + response.text)
     signcloudresp = json.loads(response.text)
+
     if signcloudresp['responseCode'] == 0:
-        print(signcloudresp['responseMessage'])
-        print(signcloudresp['billCode'])
+        # print(signcloudresp['responseMessage'])
+        # print(signcloudresp['billCode'])
 
         # write to file
         signedfiledata = open("files/esign/sample.signed.pdf", "wb")
         base64_bytes = signcloudresp['signedFileData'].encode('utf-8')
         signedfiledata.write(base64.standard_b64decode(base64_bytes))
-        print('Signed File is saved successfully')
+        # print('Signed File is saved successfully')
         signedfiledata.close()
+        return {
+            "status": True,
+            "data": signcloudresp
+        }
     else:
-        print(signcloudresp['responseCode'])
-        print(signcloudresp['responseMessage'])
+        # print(signcloudresp['responseCode'])
+        # print(signcloudresp['responseMessage'])
+        return {
+            "status": False,
+            "message": signcloudresp['responseMessage']
+        }
 
 
 def regenerateAuthorizationCodeForSignCloud(agreementUUID):
@@ -285,14 +296,22 @@ def regenerateAuthorizationCodeForSignCloud(agreementUUID):
     payload += "}"
 
     response = requests.post(URL + FUNCTION_REGENERATEAUTHORIZATIONCODEFORSIGNCLOUD, data=payload)
-    print('Response: ' + response.text)
+    # print('Response: ' + response.text)
     signcloudresp = json.loads(response.text)
     if signcloudresp['responseCode'] == 1007:
-        print(signcloudresp['responseMessage'])
-        print(signcloudresp['billCode'])
+        # print(signcloudresp['responseMessage'])
+        # print(signcloudresp['billCode'])
+        return {
+            "status": True,
+            "data": signcloudresp
+        }
     else:
-        print(signcloudresp['responseCode'])
-        print(signcloudresp['responseMessage'])
+        # print(signcloudresp['responseCode'])
+        # print(signcloudresp['responseMessage'])
+        return {
+            "status": False,
+            "message": signcloudresp['responseMessage']
+        }
 
 
 def generatePKCS1Signature(data):
