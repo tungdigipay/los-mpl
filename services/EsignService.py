@@ -88,7 +88,7 @@ def create_objects(data) -> str:
 
 def __send_sms(application, contract_number, esignPwd):
     mobilePhone = application['LOS_customer_profile']['mobilePhone']
-    link = "tai day"
+    link = "https://1ljz.short.gy/I6sAqn"
     SmsSevice.approve(mobilePhone, contract_number, link, esignPwd)
 
 def __create_pwd() -> str:
