@@ -62,9 +62,9 @@ def process(uniqueID):
 
     score_repo = {
         "ma": res_brc['data']['ma'],
-        "dgp_rating": logic_de['dgp_rating'],
-        "cs_grade": logic_de['cs_grade'],
-        "decision_mark": logic_de['grade'],
+        "dgp_rating": logic_de['data']['dgp_rating'],
+        "cs_grade": logic_de['data']['cs_grade'],
+        "decision_mark": logic_de['data']['grade'],
     }
     ScoringReposirity.storage(application, score_repo)
 
