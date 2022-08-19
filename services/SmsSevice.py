@@ -1,7 +1,7 @@
 from libraries import Sms
 
-def approve(mobilePhone, contractNumber, link):
-    sms_out = f"Mfast Pay Later da phe duyet ho so vay {contractNumber}. Vui long truy cap {link} de xem va ky hop dong dien tu."
+def approve(mobilePhone, contractNumber, link, esignPwd):
+    sms_out = f"Mfast Pay Later da phe duyet ho so vay {contractNumber} và mat khau {esignPwd}. Vui long truy cap {link} de xem va ky hop dong dien tu."
     return __process(mobilePhone, sms_out)
 
 def reject(mobilePhone):

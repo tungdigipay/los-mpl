@@ -19,7 +19,7 @@ def preparing(application):
         "contractFile": "https://s3-sgn09.fptcloud.com/appay.cloudcms/contract_template.pdf"
     })
 
-    __send_sms(application, contract_number)
+    __send_sms(application, contract_number, esignPwd)
     return {
         "status": True,
         "message": "Đã sinh hợp đồng và chờ khách hàng ký"
@@ -86,10 +86,10 @@ def create_objects(data) -> str:
 
     return objects
 
-def __send_sms(application, contract_number):
+def __send_sms(application, contract_number, esignPwd):
     mobilePhone = application['LOS_customer_profile']['mobilePhone']
     link = "tai day"
-    SmsSevice.approve(mobilePhone, contract_number, link)
+    SmsSevice.approve(mobilePhone, contract_number, link, esignPwd)
 
 def __create_pwd() -> str:
     return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(6))
