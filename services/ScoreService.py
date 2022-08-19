@@ -116,17 +116,17 @@ def detail_by_appID(uniqueID):
     }
 
 def business_rule_check(application):
-    emi = application['emi']
+    # emi = application['emi']
     ma = calc_ma(application) * 0.35
-    if emi > ma:
-        return {
-            "status": False,
-            "message": "EMI cao hơn mức sống theo quy định ",
-            "code": "EMI_EMAR",
-            "data": {
-                "ma": ma
-            }
-        }
+    # if emi > ma:
+    #     return {
+    #         "status": False,
+    #         "message": "EMI cao hơn mức sống theo quy định ",
+    #         "code": "EMI_EMAR",
+    #         "data": {
+    #             "ma": ma
+    #         }
+    #     }
 
     return {
         "status": True,
