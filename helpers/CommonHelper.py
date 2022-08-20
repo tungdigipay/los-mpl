@@ -30,3 +30,12 @@ def get_age(dateOfBirth):
     today = date.today()
     age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
     return age
+
+def calc_emi(amount, tenor, interest_rate):
+    P = amount
+    I = 0
+    t = tenor
+    n = tenor/ 12
+
+    emi = (P + I) / (t * n)
+    return round(emi)

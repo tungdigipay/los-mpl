@@ -2,6 +2,7 @@ from repositories import ApplicationRepository, CustomerRepository
 from services import OtpService, DgpService, ApplicationService
 from multiprocessing.dummy import Pool
 import requests
+from helpers.CommonHelper import calc_emi
 
 def init(request):
     data = {
@@ -106,15 +107,15 @@ def submit(request):
         "bankID": request.bankID, 
         "bankAccountNumber":  request.bankAccountNumber,
         "bankAccountName":  request.bankAccountName, 
-        "reference1Name":  request.reference1Name,
+        "reference1Name":  request.reference1Name.upper(),
         "reference1Relationship": request.reference1Relationship, 
         "reference1Phone": request.reference1Phone,
-        "reference2Name": request.reference2Name,
+        "reference2Name": request.reference2Name.upper(),
         "reference2Relationship": request.reference2Relationship, 
         "reference2Phone":  request.reference2Phone,
         "loanTenor": request.loanTenor,
         "loanAmount": request.loanAmount, 
-        "emi": request.emi
+        "emi": calc_emi(request.loanAmount, request.loanTenor)#request.emi
     }
     
     res = ApplicationRepository.submit(data)
