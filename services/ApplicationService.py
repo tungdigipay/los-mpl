@@ -1,5 +1,6 @@
 from libraries import Kalapa, MFast, Hasura
 from services import SmsSevice
+from helpers import CommonHelper
 
 def credit_score(idNumber, mobilePhone):
     return Kalapa.process("user-profile/scoring/social_fraud", "GET", {
@@ -29,14 +30,18 @@ def mfast_dedup(idNumber, mobilePhone):
         "mobilePhone": mobilePhone
     })
 
-def dedup_in_los(idNumber):
-    acting = __check_dedup_in_los_acting(idNumber)
+def dedup_in_los(idNumber, mobilePhone):
+    acting = __check_dedup_in_los_active(idNumber, mobilePhone)
     if acting['status'] == False:
         return acting
 
-    processing = __check_dedup_in_los_processing(idNumber)
+    processing = __check_dedup_in_los_processing(idNumber, mobilePhone)
     if processing['status'] == False:
         return processing
+
+    rejected = __check_dedup_in_los_rejected(idNumber, mobilePhone)
+    if rejected['status'] == False:
+        return rejected
 
     return {
         "status": True,
@@ -44,25 +49,25 @@ def dedup_in_los(idNumber):
         "code": ""
     }
 
-def __check_dedup_in_los_acting(idNumber):
+def __check_dedup_in_los_active(idNumber, mobilePhone):
     query = """
-    query q_LOS_applications_aggregate {
+    query count_loan_by_phone {
         LOS_applications_aggregate(
-            where: {statusID: { _eq: 23 }, 
-            LOS_customer: { idNumber: { _eq: "%s" } } }
+            where: {
+                LOS_customer_profile: {mobilePhone: {_eq: "%s"} }, 
+                LOS_customer: {idNumber: {_eq: "%s"} }, 
+                statusID: { _eq: 23 } 
+            }
         ) {
             aggregate {
                 count
             }
         }
     }
-    """ % (idNumber)
-    res = Hasura.process("q_LOS_applications_aggregate", query)
+    """ % (mobilePhone, idNumber)
+    res = Hasura.process("count_loan_by_phone", query)
     if res['status'] == False:
-        return {
-            "status": False,
-            "message": res['message']
-        }
+        return res
     
     if (res['data']['LOS_applications_aggregate']['aggregate']['count'] > 1):
         return {
@@ -75,31 +80,72 @@ def __check_dedup_in_los_acting(idNumber):
         "status": True
     }
 
-def __check_dedup_in_los_processing(idNumber):
+def __check_dedup_in_los_processing(idNumber, mobilePhone):
+    processing_status_ids = CommonHelper.list_status_for_processing()
+    status_ids = [str(element) for element in processing_status_ids]
     query = """
-    query q_LOS_applications_aggregate {
+    query count_processing_by_phone {
         LOS_applications_aggregate(
-            where: {statusID: { _eq: 23 }, 
-            LOS_customer: { idNumber: { _eq: "%s" } } }
+            where: {
+                LOS_customer_profile: {mobilePhone: {_eq: "%s"} }, 
+                LOS_customer: {idNumber: {_eq: "%s"} }, 
+                statusID: { _in: [%s] } 
+            }
         ) {
             aggregate {
                 count
             }
         }
     }
-    """ % (idNumber)
-    res = Hasura.process("q_LOS_applications_aggregate", query)
+    """ % (mobilePhone, idNumber, ', '.join(status_ids))
+    res = Hasura.process("count_processing_by_phone", query)
     if res['status'] == False:
         return {
             "status": False,
             "message": res['message']
         }
     
-    if (res['data']['LOS_applications_aggregate']['aggregate']['count'] > 1):
+    if (res['data']['LOS_applications_aggregate']['aggregate']['count'] > 0):
         return {
             "status": False,
-            "message": "Có hơn 1 khoản vay BNPL đang hoạt động",
-            "code": "DDP_LCT1"
+            "message": "Coó khoản vay BNPL đang xử lý",
+            "code": "DDP_LCT2"
+        }
+    
+    return {
+        "status": True
+    }
+
+def __check_dedup_in_los_rejected(idNumber, mobilePhone):
+    rejected_status_ids = CommonHelper.list_status_for_rejected()
+    status_ids = [str(element) for element in rejected_status_ids]
+    query = """
+    query count_processing_by_phone {
+        LOS_applications_aggregate(
+            where: {
+                LOS_customer_profile: {mobilePhone: {_eq: "%s"} }, 
+                LOS_customer: {idNumber: {_eq: "%s"} }, 
+                statusID: { _in: [%s] } 
+            }
+        ) {
+            aggregate {
+                count
+            }
+        }
+    }
+    """ % (mobilePhone, idNumber, ', '.join(status_ids))
+    res = Hasura.process("count_processing_by_phone", query)
+    if res['status'] == False:
+        return {
+            "status": False,
+            "message": res['message']
+        }
+    
+    if (res['data']['LOS_applications_aggregate']['aggregate']['count'] > 0):
+        return {
+            "status": False,
+            "message": "Có khoản vay BNPL bị từ chối dưới 30 ngày",
+            "code": "DDP_LCT3"
         }
     
     return {

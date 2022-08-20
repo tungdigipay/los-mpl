@@ -39,3 +39,12 @@ def calc_emi(amount, tenor, interest_rate):
 
     emi = (P + I) / (t * n)
     return round(emi)
+
+def list_status_for_processing():
+    return [3, 6, 7, 10, 13, 14, 15, 18, 19, 20, 21, 22]
+
+def list_status_for_refused():
+    return [4, 5, 8, 9, 11, 12, 16, 17, 24]
+
+def list_status_for_rejected():
+    return [5, 9, 11, 17]

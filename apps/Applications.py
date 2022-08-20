@@ -32,7 +32,7 @@ def init(request):
     data["mobilePhone"] = mobilePhone
 
     ## check dedup in los
-    check_dedup_in_los = ApplicationService.dedup_in_los(data['idNumber'])
+    check_dedup_in_los = ApplicationService.dedup_in_los(data['idNumber'], mobilePhone)
     if check_dedup_in_los['status'] == False:
         return {
             "status": False,
