@@ -44,10 +44,13 @@ class Item(BaseModel):
 
     @validator('dateOfBirth')
     def dateOfBirth_valiadator(cls, v):
-        from helpers.CommonHelper import validate_date
-        if validate_date(v) == True:
-            return v
-        raise ValueError("Ngày sinh không hợp lệ")
+        from helpers.CommonHelper import validate_date, get_age
+        if validate_date(v) != True:
+            raise ValueError("Ngày sinh không hợp lệ")
+
+        if get_age(v) < 18:
+            raise ValueError("Rất tiếc bạn chưa đủ tuổi để tham gia chương trình")
+        return v
 
     @validator('email')
     def email_valiadator(cls, v, values, **kwargs):
