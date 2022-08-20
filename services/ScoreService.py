@@ -47,7 +47,8 @@ def process(uniqueID):
         ApplicationService.update_status(application, 12, f"{res_brc['code']}_{res_brc['message']}")
         return res_brc
 
-    logic_de = de_matrix(application)
+    ma = res_brc['data']['ma']
+    logic_de = de_matrix(application, ma)
     if logic_de['status'] == False:
         return logic_de
 
@@ -64,7 +65,7 @@ def process(uniqueID):
     ApplicationService.update_status(application, statusID, note)
 
     score_repo = {
-        "ma": res_brc['data']['ma'],
+        "ma": ma,
         "dgp_rating": logic_de['data']['dgp_rating'],
         "cs_grade": logic_de['data']['cs_grade'],
         "decision_mark": logic_de['data']['grade'],
@@ -121,7 +122,7 @@ def detail_by_appID(uniqueID):
 
 def business_rule_check(application):
     emi = application['emi']
-    ma = calc_ma(application) * 0.35
+    ma = calc_ma(application) * 0.8
     if emi > ma:
         return {
             "status": False,
@@ -139,8 +140,8 @@ def business_rule_check(application):
         }
     }
 
-def de_matrix(application):
-    dgp_rating = __dgp_rating(application)
+def de_matrix(application, ma):
+    dgp_rating = __dgp_rating(application, ma)
     cs_grade = __cs_grade(application)
 
     dgp_index = marks.index(dgp_rating)
@@ -181,27 +182,30 @@ def __get_matrix():
         [6, 6, 6, 6, 6, 6]
     ]
 
-def __dgp_rating(application):
+def __dgp_rating(application, ma):
     birthday = application['LOS_customer']['dateOfBirth']
-    age = __dgp_age(birthday)
-    employment = application['LOS_master_employee_type']['score']
-    marital = application['LOS_master_marital_status']['score']
-    gender = application['LOS_customer']['LOS_master_gender']['score']
-    product = __dgp_product(application)
+    age = calc_density("age", __dgp_age(birthday))
+    employment = calc_density("employment", application['LOS_master_employee_type']['score'])
+    marital = calc_density("marital", application['LOS_master_marital_status']['score'])
+    gender = calc_density("gender", application['LOS_customer']['LOS_master_gender']['score'])
+    product = calc_density("product", __dgp_product(application))
+    ma_score = calc_density("ma", __ma_score(ma))
+    agent = calc_density("agent", 1.5)
+    group_customer = calc_density("group_customer", 2.5)
 
-    score = age + employment + marital + gender + product
+    score = age + employment + marital + gender + product + ma_score
 
-    if score < 13.46:
-        return "D"
-    if score < 14.96:
-        return "C"
-    if score < 16.46:
-        return "B"
-    if score < 17.20:
-        return "B+"
-    if score < 17.95:
+    if score >= 2.65:
+        return "A+"
+    if score >= 2.54:
         return "A"
-    return "A+"
+    if score >= 2.43:
+        return "B+"
+    if score >= 2.21:
+        return "B"
+    if score >= 1.99:
+        return "C"
+    return "D"
 
 def __cs_grade(application):
     cs = __credit_score(application)
@@ -248,6 +252,41 @@ def calc_income(application):
         salara_by_hour = salary_hour * X5 * X6 * X7
         income_in_min = min(income, X8 * X1)
         return max(income_in_min, salara_by_hour)
+
+def __ma_score(ma):
+    if ma <= 1000000:
+        return 1
+    if ma <= 2000000:
+        return 2
+    if ma <= 3500000:
+        return 3
+    if ma <= 5000000:
+        return 3
+    if ma <= 7500000:
+        return 4
+    if ma <= 10000000:
+        return 4
+    if ma > 10000000:
+        return 5
+    return 0
+
+def calc_density(key, value):
+    if key == "age":
+        return value * 9.4/ 100
+    if key == "employment":
+        return value * 13.4/ 100
+    if key == "marital":
+        return value * 5/ 100
+    if key == "gender":
+        return value * 6.7/ 100
+    if key == "ma":
+        return value * 21/ 100
+    if key == "product":
+        return value * 17.8/ 100
+    if key == "agent":
+        return value * 10.0/ 100
+    if key == "group_customer":
+        return value * 16.7/ 100
 
 def __ins_score(application):
     idNumber = application['LOS_customer']['idNumber']
