@@ -4,13 +4,16 @@ from services import ApplicationService, EsignService
 from helpers import CommonHelper
 from repositories import ScoringReposirity
 
-x1 = 0.75
-x2 = 200000
-x3 = 1.5
-x4 = 1.5
-x5 = 8
-x6 = 25
-x7 = 1.5
+X0 = 20000000
+X1 = 0.75
+X2 = 200000
+X3 = 1.5
+X4 = 1.5
+X5 = 8
+X6 = 25
+X7 = 1.5
+X8 = 15000000
+
 
 salary_region_1 = 4680000
 salary_region_2 = 4160000
@@ -89,6 +92,7 @@ def detail_by_appID(uniqueID):
                 mobilePhone
                 current_LOS_master_location_district {
                     salaryRegion
+                    minimumExpenseRegion
                 }
                 LOS_master_marital_status{
                     score
@@ -116,17 +120,17 @@ def detail_by_appID(uniqueID):
     }
 
 def business_rule_check(application):
-    # emi = application['emi']
+    emi = application['emi']
     ma = calc_ma(application) * 0.35
-    # if emi > ma:
-    #     return {
-    #         "status": False,
-    #         "message": "EMI cao hơn mức sống theo quy định ",
-    #         "code": "EMI_EMAR",
-    #         "data": {
-    #             "ma": ma
-    #         }
-    #     }
+    if emi > ma:
+        return {
+            "status": False,
+            "message": "EMI cao hơn mức sống theo quy định ",
+            "code": "EMI_EMAR",
+            "data": {
+                "ma": ma
+            }
+        }
 
     return {
         "status": True,
@@ -136,10 +140,8 @@ def business_rule_check(application):
     }
 
 def de_matrix(application):
-    # dgp_rating = __dgp_rating(application)
-    # cs_grade = __cs_grade(application)
-    dgp_rating = "A+"
-    cs_grade = "A+"
+    dgp_rating = __dgp_rating(application)
+    cs_grade = __cs_grade(application)
 
     dgp_index = marks.index(dgp_rating)
     cs_index = marks.index(cs_grade)
@@ -224,8 +226,10 @@ def calc_ma(application):
     return income - expense
 
 def calc_expense(application):
-    income = application['monthlyIncome'] * 0.6 - __loan_fi(application)
-    return max(income, application['monthlyExpenses'])
+    minimum_expense = application['LOS_customer_profile']['current_LOS_master_location_district']['minimumExpenseRegion']
+    max_expense = max(application['monthlyExpenses'], minimum_expense)
+    obligation = __loan_fi(application) + minimum_expense
+    return max(max_expense, obligation)
 
 def __loan_fi(application):
     ## current not connect to Loan FI
@@ -233,16 +237,17 @@ def __loan_fi(application):
 
 def calc_income(application):
     employmentID = application['LOS_master_employee_type']['ID']
-    income = application['monthlyIncome'] * x1
+    income = application['monthlyIncome']
     salary_region, salary_hour = __salary_region(application)
     
     if employmentID in [1, 4]:
-        salary_region = salary_region * x4
-        ins_score = __ins_score(application) * x2 * x3
-        return min(income, salary_region, ins_score)
+        ins_score = __ins_score(application) * X2 * X3
+        income_in_min = min(income, X0)
+        return max(income_in_min, ins_score)
     else:
-        salara_by_hour = salary_hour * x5 * x6 * x7
-        return min(income, salara_by_hour)
+        salara_by_hour = salary_hour * X5 * X6 * X7
+        income_in_min = min(income, X8 * X1)
+        return max(income_in_min, salara_by_hour)
 
 def __ins_score(application):
     idNumber = application['LOS_customer']['idNumber']
