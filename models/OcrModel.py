@@ -1,6 +1,7 @@
 from pydantic import BaseModel, validator, Field
 import re
 from typing import Union
+import validators
 
 class Item(BaseModel):
     type: str
@@ -69,3 +70,17 @@ class Item(BaseModel):
         if is_json(v) == True:
             return v
         raise ValueError("extractData không hợp lệ")
+
+    @validator('idNumberFrontImage')
+    def idNumberFrontImage_validator(cls, v):
+        valid = validators.url(v)
+        if valid != True:
+            raise ValueError("Mặt trước CMND/ CCCD không hợp lệ")
+        return v
+
+    @validator('idNumberBackImage')
+    def idNumberBackImage_validator(cls, v):
+        valid = validators.url(v)
+        if valid != True:
+            raise ValueError("extractData không hợp lệ")
+        return v

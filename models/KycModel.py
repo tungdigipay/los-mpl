@@ -1,5 +1,6 @@
 from pydantic import BaseModel, validator
 import re
+import validators
 
 class Item(BaseModel):
     uniqueID: str
@@ -18,5 +19,12 @@ class Item(BaseModel):
         from helpers.CommonHelper import is_uuid
         if is_uuid(v) == False:
             raise ValueError("uniqueID không hợp lệ")
+        return v
+
+    @validator('faceImage')
+    def faceImage_validator(cls, v):
+        valid = validators.url(v)
+        if valid != True:
+            raise ValueError("Hình selfie không hợp lệ")
         return v
         
