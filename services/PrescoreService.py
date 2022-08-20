@@ -4,6 +4,7 @@ from libraries import Hasura
 from helpers import CommonHelper
 from multiprocessing.dummy import Pool
 import requests
+from repositories import PrescoreRepository
 
 def process(uniqueID):
     application = detail_by_appID(uniqueID)
@@ -32,6 +33,14 @@ def process(uniqueID):
     if res_income['status'] == False:
         ApplicationService.update_status(application, 8, f"{res_income['code']}_{res_income['message']}")
         return res_income
+
+    customer_profile = application['LOS_customer_profile']
+    if customer_profile['reference1Relationship'] == 1 or ['reference2Relationship'] == 1:
+        relationPhone = customer_profile['reference2Phone'] if customer_profile['reference1Relationship'] == 1 else customer_profile['reference2Phone']
+        res_relation = __score_relation(relationPhone)
+        if res_relation['status'] == False:
+            ApplicationService.update_status(application, 8, f"{res_relation['code']}_{res_relation['message']}")
+        return res_relation
 
     res_region = __score_region(application)
     if res_region['status'] == False:
@@ -81,6 +90,35 @@ def __score_income(monthly_income):
         "status": True
     }
 
+def __score_relation(relationPhone):
+    count_loan = PrescoreRepository.count_loan_by_phone(mobilePhone=relationPhone)
+    if count_loan > 0:
+        return {
+            "status": False,
+            "message": "Vợ/chồng đang có khoản vay BNPL",
+            "code": "ELI_REF1"
+        }
+
+    count_processing = PrescoreRepository.count_processing_by_phone(mobilePhone=relationPhone)
+    if count_processing > 0:
+        return {
+            "status": False,
+            "message": "Vợ/chồng có hồ sơ BNPL đang xử lý",
+            "code": "ELI_REF1"
+        }
+
+    count_refused = PrescoreRepository.count_refused_by_phone(mobilePhone=relationPhone)
+    if count_processing > 0:
+        return {
+            "status": False,
+            "message": "Vợ/chồng có hồ sơ BNPL bị từ chối dưới 30 ngày",
+            "code": "ELI_REF3"
+        }
+
+    return {
+        "status": True
+    }
+
 def __score_region(application):
     if application['LOS_customer_profile']['current_LOS_master_location_district']['allow'] != 1:
         return {
@@ -98,41 +136,4 @@ def __score_phv():
     }
 
 def detail_by_appID(uniqueID):
-    query = """
-    query detail_LOS_applications {
-        LOS_applications(
-            where: { 
-                uniqueID: { _eq: "%s" } 
-            }
-        ) {
-            ID
-            LOS_customer {
-                dateOfBirth
-            }
-            monthlyIncome
-            reference1Name
-            reference1Phone
-            reference1Relationship
-            reference2Name
-            reference2Phone
-            reference2Relationship
-            LOS_customer_profile {
-                currentAddressProvince
-                mobilePhone
-                current_LOS_master_location_district {
-                    allow
-                }
-            }
-            loanTenor
-            statusID
-        }
-    }
-    """ % (uniqueID)
-    res = Hasura.process("detail_LOS_applications", query)
-    if res['status'] == False:
-        return res
-    
-    return {
-        "status": True,
-        "data": res['data']['LOS_applications'][0]
-    }
+    return PrescoreRepository.detail_by_appID(uniqueID=uniqueID)
