@@ -48,3 +48,8 @@ def list_status_for_refused():
 
 def list_status_for_rejected():
     return [5, 9, 11, 17]
+
+def thirty_days_ago():
+    from datetime import datetime, timedelta
+    today = datetime. today()
+    return today - timedelta(days=30)

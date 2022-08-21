@@ -6,17 +6,17 @@ def credit_score(idNumber, mobilePhone):
     return Kalapa.process("user-profile/scoring/social_fraud", "GET", {
         "id": idNumber,
         "mobile": mobilePhone
-    })
+    }, "credit_score")
 
 def check_mobilephone(mobilePhone):
     return Kalapa.process("user-profile/mobile2id/get/", "GET", {
         "mobile": mobilePhone
-    })
+    }, "check_mobilephone")
 
 def social_insurance(idNumber):
     return Kalapa.process("user-profile/user-jscore/vc/get/", "GET", {
         "id": idNumber
-    })
+    }, "social_insurance")
 
 def mfast_blacklist(idNumber, mobilePhone):
     return MFast.process("/blacklist", "POST", {
@@ -119,6 +119,7 @@ def __check_dedup_in_los_processing(idNumber, mobilePhone):
 def __check_dedup_in_los_rejected(idNumber, mobilePhone):
     rejected_status_ids = CommonHelper.list_status_for_rejected()
     status_ids = [str(element) for element in rejected_status_ids]
+    thirty_days_ago = CommonHelper.thirty_days_ago()
     query = """
     query count_processing_by_phone {
         LOS_applications_aggregate(
@@ -126,6 +127,7 @@ def __check_dedup_in_los_rejected(idNumber, mobilePhone):
                 LOS_customer_profile: {mobilePhone: {_eq: "%s"} }, 
                 LOS_customer: {idNumber: {_eq: "%s"} }, 
                 statusID: { _in: [%s] } 
+                createdDate: { _gt: "%s"}
             }
         ) {
             aggregate {
@@ -133,7 +135,7 @@ def __check_dedup_in_los_rejected(idNumber, mobilePhone):
             }
         }
     }
-    """ % (mobilePhone, idNumber, ', '.join(status_ids))
+    """ % (mobilePhone, idNumber, ', '.join(status_ids), thirty_days_ago)
     res = Hasura.process("count_processing_by_phone", query)
     if res['status'] == False:
         return {

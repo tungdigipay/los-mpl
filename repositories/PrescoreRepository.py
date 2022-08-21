@@ -86,16 +86,10 @@ def count_processing_by_phone(mobilePhone):
     return res['data']['LOS_applications_aggregate']['aggregate']['count']
 
 def count_refused_by_phone(mobilePhone):
-    from datetime import datetime, timedelta
-    today = datetime. today()
-    thirty_days_ago = today - timedelta(days=30)
+    thirty_days_ago = CommonHelper.thirty_days_ago()
 
     processing_status_ids = CommonHelper.list_status_for_refused()
     status_ids = [str(element) for element in processing_status_ids]
-
-    from datetime import datetime, timedelta
-    today = datetime. today()
-    thirty_days_ago = today - timedelta(days=30)
 
     query = """
     query count_loan_by_phone {

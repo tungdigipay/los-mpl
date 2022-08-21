@@ -8,7 +8,7 @@ config = config['KALAPA']
 base_url = config['base_url']
 secret_key = config['secret_key']
 
-def process(slug, type, payload):
+def process(slug, type, payload, function):
     url = f"{base_url}/{slug}"
     headers = {
     'Authorization': f'Bearer {secret_key}'
@@ -19,22 +19,29 @@ def process(slug, type, payload):
 
     response = requests.request(type, url, headers=headers, data=payload)
     query = """
-mutation m_log_kalapa { 
-    insert_LOG_kalapa(
-        objects: {
-            url: "%s", 
-            payload: "%s", 
-            response: "%s"
+        mutation m_log_kalapa($payload: jsonb = "", $response: jsonb = "") { 
+            insert_LOG_kalapa(
+                objects: {
+                    url: "%s", 
+                    payload: $payload, 
+                    response: $response,
+                    function: "%s"
+                }
+            ) { 
+                returning { ID } 
+            } 
         }
-    ) { 
-        returning { ID } 
-    } 
-}
-    """ % (url, json.dumps(payload).replace('"', '\\"'), response.text.replace('"', '\\"'))
-    Hasura.process("m_log_kalapa", query)
+    """ % (url, function)
+    #json.dumps(payload).replace('"', '\\"'), response.text.replace('"', '\\"'), 
+    response = json.loads(response.text)
+    variables = {
+        "payload": payload,
+        "response": response
+    }
+    res = Hasura.process("m_log_kalapa", query, variables)
+    return res
 
     try:
-        response = json.loads(response.text)
         return {
             "status": True,
             "data": response
