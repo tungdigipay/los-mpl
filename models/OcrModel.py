@@ -48,7 +48,7 @@ class Item(BaseModel):
         if validate_date(v) != True:
             raise ValueError("Ngày sinh không hợp lệ")
 
-        if get_age(v) < 18:
+        if get_age(v) < 20:
             raise ValueError("Rất tiếc bạn chưa đủ tuổi để tham gia chương trình")
         return v
 
