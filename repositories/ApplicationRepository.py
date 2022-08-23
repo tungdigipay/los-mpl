@@ -32,7 +32,7 @@ def __init_add(data):
                 }
             }
         ) {
-            LOS_application{ uniqueID }
+            LOS_application{ uniqueID ID}
         }
     }
     """ % (
@@ -45,9 +45,7 @@ def __init_add(data):
         return res
     return {
         "status": True,
-        "data": {
-            "uniqueID": res['data']['insert_LOS_customer_ocrs_one']['LOS_application']['uniqueID']
-        }
+        "data": res['data']['insert_LOS_customer_ocrs_one']['LOS_application']
     }
 
 def __init_update(data):

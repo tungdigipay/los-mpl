@@ -30,8 +30,9 @@ def mfast_dedup(idNumber, mobilePhone):
         "mobilePhone": mobilePhone
     })
 
-def dedup_in_los(idNumber, mobilePhone):
+def dedup_in_los(applicationID, idNumber, mobilePhone):
     acting = __check_dedup_in_los_active(idNumber, mobilePhone)
+    
     if acting['status'] == False:
         return acting
 
@@ -108,7 +109,7 @@ def __check_dedup_in_los_processing(idNumber, mobilePhone):
     if (res['data']['LOS_applications_aggregate']['aggregate']['count'] > 0):
         return {
             "status": False,
-            "message": "Coó khoản vay BNPL đang xử lý",
+            "message": "Có khoản vay BNPL đang xử lý",
             "code": "DDP_LCT2"
         }
     
@@ -209,7 +210,7 @@ def update_status(application, statusID, message):
         }
 
     ## send sms when rejected (canceled/ confused)
-    if statusID in [4, 5, 8, 9, 11, 12, 16, 17, 24]:
+    if statusID in CommonHelper.list_status_for_refused():
         SmsSevice.reject(application['LOS_customer_profile']['mobilePhone'])
 
     ## callback status to mfast via webhook

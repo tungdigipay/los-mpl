@@ -31,14 +31,6 @@ def init(request):
     mobilePhone = otp_data['data']['mobilePhone']
     data["mobilePhone"] = mobilePhone
 
-    ## check dedup in los
-    check_dedup_in_los = ApplicationService.dedup_in_los(data['idNumber'], mobilePhone)
-    if check_dedup_in_los['status'] == False:
-        return {
-            "status": False,
-            "message": check_dedup_in_los['message']
-        }
-
     customer = CustomerRepository.create(data)
     if customer['status'] == False:
         return customer
@@ -50,14 +42,25 @@ def init(request):
     if res['status'] == False:
         return res
 
-    dgp_blacklist_result = DgpService.check_blacklist(data['idNumber'], mobilePhone)
+    applicationID = res['data']['ID']
+    application = {
+        "ID": applicationID
+    }
+
+    ## check blacklist from DGP
+    dgp_blacklist_result = DgpService.check_blacklist(applicationID, data['idNumber'], mobilePhone)
     if dgp_blacklist_result['status'] == False:
+        ApplicationService.update_status(application, 4, dgp_blacklist_result['message'])
         return dgp_blacklist_result
 
-    ## check DGP dedup
-    dgp_dedup_result = DgpService.check_dedup(data['idNumber'], mobilePhone)
-    if dgp_dedup_result['status'] == False:
-        return dgp_dedup_result
+    ## check dedup in los
+    check_dedup_in_los = ApplicationService.dedup_in_los(applicationID, data['idNumber'], mobilePhone)
+    if check_dedup_in_los['status'] == False:
+        ApplicationService.update_status(application, 4, check_dedup_in_los['message'])
+        return {
+            "status": False,
+            "message": check_dedup_in_los['message']
+        }
 
     return {
         "status": True,
