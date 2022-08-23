@@ -1,10 +1,11 @@
 import json
+from uuid import UUID
 from fastapi import FastAPI, Request, HTTPException, status, File, UploadFile
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from apps import OTP, Files, Customers, Applications, Kyc, Hyperverge, Prescore, Esign, Score
+from apps import OTP, Files, Customers, Applications, Kyc, Hyperverge, Prescore, Esign, Score, Callback
 from models import OtpModel, OcrModel, FileModel, ApplicationModel, KycModel, GraphqlModel, EsignModel
 
 from services import ApplicationService
@@ -64,27 +65,13 @@ async def ocr_storage(request: KycModel.Item):
 async def application_submit(request: ApplicationModel.Item):
     return Applications.submit(request)
 
-# @app.post("/applications/prescore")
-# async def applications_prescore(request: ApplicationModel.Prescore):
-#     return Prescore.process(request.uniqueID)
-
 @app.get("/applications/prescore")
-async def applications_prescore(uniqueID: str):
+async def applications_prescore(uniqueID: UUID):
     return Prescore.process(uniqueID)
 
 @app.get("/applications/score")
-async def applications_prescore(uniqueID: str):
+async def applications_prescore(uniqueID: UUID):
     return Score.process(uniqueID)
-
-# @app.post("/applications/score")
-# async def applications_prescore(request: ApplicationModel.Score):
-#     return Score.process(request.uniqueID)
-
-@app.post("/actions")
-async def m_actions(request: GraphqlModel.Item):
-    return {
-        "accessToken": "tùng"
-    }
 
 @app.post("/hyperverge/login")
 async def login():
@@ -106,11 +93,6 @@ def kalapa(item):
     if item == "social_insurance":
         return ApplicationService.social_insurance("205341091")
 
-@app.get("/sms")
-def sms():
-    from services import SmsSevice
-    return SmsSevice.reject('0905044591')
-
 @app.post("/esign/verify")
 def esign_verify(request: EsignModel.Verify):
     return Esign.verify(request)
@@ -123,59 +105,6 @@ def esign_otp(request: EsignModel.Otp):
 def esign_confirm(request: EsignModel.Confirm):
     return Esign.confirm(request)
 
-
-@app.get("/matrix/{dgp_rating}/{cs_grade}")
-def matrix(dgp_rating, cs_grade):
-    from services import ScoreService
-    marks = ["A+", "A", "B+", "B", "C", "D"]
-    dgp_index = marks.index(dgp_rating)
-    cs_index = marks.index(cs_grade)
-    matrix = [
-        [1, 1, 2, 2, 3, 5],
-        [2, 2, 3, 3, 3, 5],
-        [3, 3, 3, 3, 3, 5],
-        [4, 4, 4, 4, 5, 5],
-        [5, 5, 5, 5, 5, 6],
-        [6, 6, 6, 6, 6, 6]
-    ]
-
-    grade = matrix[dgp_index][cs_index]
-    decisions = {
-        1: "Approve",
-        2: "Approve",
-        3: "Manual",
-        4: "Cancel",
-        5: "Cancel",
-        6: "Cancel",
-    }
-    return decisions[grade]
-
-@app.get("/cs")
-def social_insurance():
-    from datetime import date
-    today = date.today()
-    contract_number = "11" + today.strftime("%y%m%d")
-
-    applicationID = 123456789
-    applicationID_text = str(applicationID)
-    if applicationID > 10000: applicationID_text = applicationID_text[-4:len(applicationID_text)]
-    else: applicationID_text = applicationID_text.zfill(4)
-    return applicationID_text
-    
-
-    return contract_number + applicationID_text
-    # from repositories import ScoringReposirity
-    # return ScoringReposirity.storage({
-    #     "ID": 124
-    # }, {
-    #     "dgp_rating": "A"
-    # })
-    # return ApplicationService.social_insurance("090111222")
-
-@app.get("/pdf")
-async def pdf():
-    from libraries import S3
-    file_uploaded = S3.upload("files/esign/contract_template.pdf", "contract_template.pdf")
-    return file_uploaded
-    # from libraries import CreatePDF
-    # return CreatePDF.gen()
+@app.get("/callback/status")
+async def callback_status(uniqueID: UUID):
+    return Callback.status(uniqueID)
