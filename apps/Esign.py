@@ -8,6 +8,11 @@ def preparing(agreementUUID):
     return EsignFPT.prepareFileForSignCloud(agreementUUID)
 
 def confirm(request):
+    return {
+            "status": True,
+            "message": "Thành công"
+        }
+        
     application = EsignRepository.detail_for_esign(request.uniqueID)
     if application['status'] == False:
         return application
@@ -106,7 +111,7 @@ def request_otp(request):
         "billCode": sign['data']['billCode']
     })
 
-    SmsSevice.esign(application['LOS_customer_profile']['mobilePhone'], sign['data']['notificationMessage'])
+    # SmsSevice.esign(application['LOS_customer_profile']['mobilePhone'], sign['data']['notificationMessage'])
 
     return {
         "status": True,
