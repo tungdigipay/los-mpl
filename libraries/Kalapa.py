@@ -14,7 +14,8 @@ def process(slug, type, payload, function):
     if exist != []:
         return {
             "status": True,
-            "data": exist['response']
+            "data": exist['response'],
+            "logID": exist['ID']
         }
 
     url = f"{base_url}/{slug}"
@@ -50,7 +51,8 @@ def process(slug, type, payload, function):
     try:
         return {
             "status": True,
-            "data": response
+            "data": response,
+            "logID": res['data']['insert_LOG_kalapa']['returning'][0]['ID']
         }
     except ValueError as e:
         return {
