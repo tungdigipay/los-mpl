@@ -3,7 +3,7 @@ from pydantic import BaseModel, validator, Field
 from typing import Union
 
 class Item(BaseModel):
-    uniqueID: str
+    uniqueID: UUID
     productID: int = Field(gt=0, description="The price must be greater than zero")
     note: Union[str, None] = Field(
         default=None, title="Ghi chú hồ sơ", max_length=255

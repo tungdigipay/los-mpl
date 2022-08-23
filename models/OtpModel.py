@@ -1,4 +1,5 @@
 from pydantic import BaseModel, validator
+from uuid import UUID
 
 class Item(BaseModel):
     mobilePhone: str
@@ -15,7 +16,7 @@ class Item(BaseModel):
 
 class Verify(BaseModel):
     otpCode: str
-    UUID: str
+    UUID: UUID
 
     @validator('otpCode')
     def otpCode_valiadator(cls, v):

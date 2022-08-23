@@ -2,13 +2,12 @@ from pydantic import BaseModel, validator, Field
 import re
 from typing import Union
 import validators
+from uuid import UUID
 
 class Item(BaseModel):
     type: str
-    uniqueID: Union[str, None] = Field(
-        default=None, title="Mã hồ sơ"
-    )
-    mobilePhoneUUID: str
+    uniqueID: UUID
+    mobilePhoneUUID: UUID
     fullName: str
     dateOfBirth: str
     genderID: int

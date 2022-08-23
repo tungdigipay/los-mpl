@@ -1,9 +1,10 @@
 from pydantic import BaseModel, validator
 import re
 import validators
+from uuid import UUID
 
 class Item(BaseModel):
-    uniqueID: str
+    uniqueID: UUID
     faceImage: str
     extractData: str
 
