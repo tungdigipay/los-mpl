@@ -5,7 +5,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from apps import OTP, Files, Customers, Applications, Kyc, Hyperverge, Prescore, Esign, Score, Callback
+from apps import OTP, Files, Customers, Applications, Kyc, Hyperverge, Prescore, Esign, Score, Postback
 from models import OtpModel, OcrModel, FileModel, ApplicationModel, KycModel, GraphqlModel, EsignModel
 
 from services import ApplicationService
@@ -105,6 +105,6 @@ def esign_otp(request: EsignModel.Otp):
 def esign_confirm(request: EsignModel.Confirm):
     return Esign.confirm(request)
 
-@app.get("/callback/status")
-async def callback_status(uniqueID: UUID):
-    return Callback.status(uniqueID)
+@app.get("/postback/status")
+async def postback_status(uniqueID: UUID):
+    return Postback.status(uniqueID)
