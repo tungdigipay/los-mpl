@@ -11,4 +11,4 @@ def status(uniqueID):
             "message": "Hồ sơ không tồn tại"
         }
 
-    return MFast.process("/mfast_api_v1/mpl/loans", "POST", application)
+    return MFast.process("loans", "POST", application)
