@@ -118,13 +118,19 @@ def submit(request):
         "loanAmount": request.loanAmount, 
         "emi": calc_emi(request.loanAmount, request.loanTenor)#request.emi
     }
+
+    ## ngoại lệ user của P, phải xóa khi golive
+    if customerID == 1:
+        data['status'] = 1
     
     res = ApplicationRepository.submit(data)
     if res['status'] == False:
         return res
 
     uniqueID = res['data']['update_LOS_applications']['returning'][0]['uniqueID']
-    ExecuteBgService.prescore(uniqueID)
+    
+    if customerID != 1:
+        ExecuteBgService.prescore(uniqueID)
     
     return {
         "status": True,
