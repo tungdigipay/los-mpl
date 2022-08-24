@@ -8,7 +8,7 @@ def check_blacklist(applicationID, idNumber, mobilePhone):
         "mobilePhone": mobilePhone
     }
 
-    result_content = [] 
+    result_content = {}
     result_content["message"] = res['message']
     if res['status'] == True: 
         result = "pass" 

@@ -36,7 +36,7 @@ def dedup_in_los(applicationID, idNumber, mobilePhone):
         "mobilePhone": mobilePhone
     }
     acting = __check_dedup_in_los_active(idNumber, mobilePhone)
-    result_content = []
+    result_content = {}
     
     result_content['Đã kích hoạt'] = "Chưa"
     if acting['status'] == False:
