@@ -8,12 +8,12 @@ def check_blacklist(applicationID, idNumber, mobilePhone):
         "mobilePhone": mobilePhone
     }
 
-    result_content = payload 
+    result_content = [] 
     result_content["message"] = res['message']
     if res['status'] == True: 
         result = "pass" 
     else: 
-        result = "failed"
+        result = "rejected"
     
     ScoringLogService.record({
         "applicationID": applicationID, 

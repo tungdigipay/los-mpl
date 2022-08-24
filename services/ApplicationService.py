@@ -1,5 +1,5 @@
 from libraries import Kalapa, MFast, Hasura
-from services import SmsSevice, ExecuteBgService
+from services import SmsSevice, ExecuteBgService, ScoringLogService
 from helpers import CommonHelper
 
 def credit_score(idNumber, mobilePhone):
@@ -31,22 +31,38 @@ def mfast_dedup(idNumber, mobilePhone):
     })
 
 def dedup_in_los(applicationID, idNumber, mobilePhone):
+    payload = {
+        "idNumber": idNumber, 
+        "mobilePhone": mobilePhone
+    }
     acting = __check_dedup_in_los_active(idNumber, mobilePhone)
+    result_content = []
     
+    result_content['Đã kích hoạt'] = "Chưa"
     if acting['status'] == False:
+        result_content['Đã kích hoạt'] = acting['message']
+        log_dedup_in_los(applicationID, payload, 'rejected', result_content)
         return acting
 
+    result_content['Đang hoạt động'] = "Chưa"
     processing = __check_dedup_in_los_processing(idNumber, mobilePhone)
     if processing['status'] == False:
+        result_content['Đang hoạt động'] = acting['message']
+        log_dedup_in_los(applicationID, payload, 'rejected', result_content)
         return processing
 
+    result_content['Từ chối < 30d'] = "Không"
     rejected = __check_dedup_in_los_rejected(idNumber, mobilePhone)
     if rejected['status'] == False:
+        result_content['Từ chối < 30d'] = acting['message']
+        log_dedup_in_los(applicationID, payload, 'rejected', result_content)
         return rejected
+
+    log_dedup_in_los(applicationID, payload, 'pass', result_content)
 
     return {
         "status": True,
-        "message": "",
+        "message": "Thỏa điều kiện",
         "code": ""
     }
 
@@ -70,10 +86,11 @@ def __check_dedup_in_los_active(idNumber, mobilePhone):
     if res['status'] == False:
         return res
     
-    if (res['data']['LOS_applications_aggregate']['aggregate']['count'] > 1):
+    number = res['data']['LOS_applications_aggregate']['aggregate']['count']
+    if (number > 1):
         return {
             "status": False,
-            "message": "Có hơn 1 khoản vay BNPL đang hoạt động",
+            "message": f"Có {number} khoản vay BNPL đang hoạt động",
             "code": "DDP_LCT1"
         }
     
@@ -106,10 +123,11 @@ def __check_dedup_in_los_processing(idNumber, mobilePhone):
             "message": res['message']
         }
     
-    if (res['data']['LOS_applications_aggregate']['aggregate']['count'] > 0):
+    number = res['data']['LOS_applications_aggregate']['aggregate']['count']
+    if (number > 0):
         return {
             "status": False,
-            "message": "Có khoản vay BNPL đang xử lý",
+            "message": f"Có {number} khoản vay BNPL đang xử lý",
             "code": "DDP_LCT2"
         }
     
@@ -144,10 +162,11 @@ def __check_dedup_in_los_rejected(idNumber, mobilePhone):
             "message": res['message']
         }
     
-    if (res['data']['LOS_applications_aggregate']['aggregate']['count'] > 0):
+    number = res['data']['LOS_applications_aggregate']['aggregate']['count']
+    if (number > 0):
         return {
             "status": False,
-            "message": "Có khoản vay BNPL bị từ chối dưới 30 ngày",
+            "message": f"Có {number} khoản vay BNPL bị từ chối trong 30 ngày",
             "code": "DDP_LCT3"
         }
     
@@ -221,3 +240,12 @@ def update_status(application, statusID, message):
     return {
         "status": True
     }
+
+def log_dedup_in_los(applicationID, payload, result, result_content):
+    ScoringLogService.record({
+        "applicationID": applicationID, 
+        "result": result, 
+        "type": "dedup_in_house", 
+        "label": "Dedup in house", 
+        "logServiceID": 0
+    }, payload, result_content)
