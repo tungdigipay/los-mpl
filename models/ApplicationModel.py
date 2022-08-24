@@ -52,13 +52,6 @@ class Item(BaseModel):
     ## thông tin agent
     saleCode: str
 
-    @validator('uniqueID')
-    def uniqueID_validator(cls, v):
-        from helpers.CommonHelper import is_uuid
-        if is_uuid(v) == False:
-            raise ValueError("uniqueID không hợp lệ")
-        return v
-
     @validator("reference2Phone")
     def referencePhone_validator(cls, v, values):
         if v == values['reference1Phone']:

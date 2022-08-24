@@ -27,13 +27,6 @@ class Item(BaseModel):
             raise ValueError("Type must be init or update")
         return v
 
-    @validator('mobilePhoneUUID')
-    def mobilePhoneUUID_validator(cls, v):
-        from helpers.CommonHelper import is_uuid
-        if is_uuid(v) == False:
-            raise ValueError("mobilePhoneUUID không hợp lệ")
-        return v
-
     @validator('idNumber_dateOfIssue')
     def idNumber_dateOfIssue_valiadator(cls, v):
         from helpers.CommonHelper import validate_date
