@@ -63,6 +63,9 @@ def __init_update(data):
                 idNumber_issuePlace: "%s",
             }) {
             affected_rows
+            returning {
+                uniqueID ID
+            }
         }
     }
     """ % (
@@ -72,11 +75,10 @@ def __init_update(data):
     res = Hasura.process("m_update_LOS_customer_profiles", query)
     if res['status'] == False:
         return res
+        
     return {
         "status": True,
-        "data": {
-            "uniqueID": data['uniqueID']
-        }
+        "data": res['data']['update_LOS_customer_profiles']['returning'][0]
     }
 
 def submit(data):
