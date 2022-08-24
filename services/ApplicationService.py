@@ -217,6 +217,9 @@ def update_status(application, statusID, message):
             }
         ) {
             ID uniqueID
+            LOS_customer_profile{
+                mobilePhone
+            }
         }
     }
     """ % (appID, statusID, message)
@@ -232,7 +235,8 @@ def update_status(application, statusID, message):
 
     ## send sms when rejected (canceled/ confused)
     if statusID in CommonHelper.list_status_for_refused():
-        SmsSevice.reject(application['LOS_customer_profile']['mobilePhone'])
+        mobilePhone = res['data']['update_LOS_applications_by_pk']['LOS_customer_profile']['mobilePhone']
+        SmsSevice.reject(mobilePhone)
 
     ## callback status to mfast via webhook
     ExecuteBgService.postback(uniqueID=uniqueID)
