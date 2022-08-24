@@ -6,7 +6,9 @@ from uuid import UUID
 
 class Item(BaseModel):
     type: str
-    uniqueID: UUID
+    uniqueID: Union[str, None] = Field(
+        default=None, title="Mã hồ sơ"
+    )
     mobilePhoneUUID: UUID
     fullName: str
     dateOfBirth: str
