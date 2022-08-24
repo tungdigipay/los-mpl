@@ -13,3 +13,11 @@ def prescore(uniqueID):
 def score(uniqueID):
     pool = Pool(1)
     pool.apply_async(requests.get, [f'{base_url}/applications/score?uniqueID={uniqueID}'])
+
+def scoring_log(uniqueID):
+    pass
+
+def postback(uniqueID):
+    pool = Pool(1)
+    pool.apply_async(requests.get, [f'{base_url}/postback/status?uniqueID={uniqueID}'])
+    pass
