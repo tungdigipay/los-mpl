@@ -1,9 +1,5 @@
-from email.mime import application
-from services import ApplicationService
-from libraries import Hasura
+from services import ApplicationService, ExecuteBgService
 from helpers import CommonHelper
-from multiprocessing.dummy import Pool
-import requests
 from repositories import PrescoreRepository
 
 def process(uniqueID):
@@ -54,9 +50,8 @@ def process(uniqueID):
         return res_phv
 
     ApplicationService.update_status(application, 6, "Kiểm tra eligible/PHV/credit score")
-
-    pool = Pool(1)
-    pool.apply_async(requests.get, ['https://mpl-rc.mfast.vn/applications/score?uniqueID=' + uniqueID])
+    ExecuteBgService.score(uniqueID)
+    
     return {
         "status": True,
         "message": "Kiểm tra eligible/PHV/credit score"

@@ -1,7 +1,5 @@
 from repositories import ApplicationRepository, CustomerRepository
-from services import OtpService, DgpService, ApplicationService
-from multiprocessing.dummy import Pool
-import requests
+from services import OtpService, DgpService, ApplicationService, ExecuteBgService
 from helpers.CommonHelper import calc_emi
 
 def init(request):
@@ -126,8 +124,8 @@ def submit(request):
         return res
 
     uniqueID = res['data']['update_LOS_applications']['returning'][0]['uniqueID']
-    pool = Pool(1)
-    pool.apply_async(requests.get, ['https://mpl-rc.mfast.vn/applications/prescore?uniqueID=' + uniqueID])
+    ExecuteBgService.prescore(uniqueID)
+    
     return {
         "status": True,
         "data": {

@@ -1,0 +1,15 @@
+from multiprocessing.dummy import Pool
+import requests, configparser
+
+config = configparser.ConfigParser()
+config.read('configs.ini')
+config = config['EXE-BG']
+base_url = config['base_url']
+
+def prescore(uniqueID):
+    pool = Pool(1)
+    pool.apply_async(requests.get, [f'{base_url}/applications/prescore?uniqueID={uniqueID}'])
+
+def score(uniqueID):
+    pool = Pool(1)
+    pool.apply_async(requests.get, [f'{base_url}/applications/score?uniqueID={uniqueID}'])
