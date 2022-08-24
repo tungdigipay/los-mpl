@@ -47,14 +47,14 @@ def dedup_in_los(applicationID, idNumber, mobilePhone):
     result_content['Đang hoạt động'] = "Chưa"
     processing = __check_dedup_in_los_processing(idNumber, mobilePhone)
     if processing['status'] == False:
-        result_content['Đang hoạt động'] = acting['message']
+        result_content['Đang hoạt động'] = processing['message']
         log_dedup_in_los(applicationID, payload, 'rejected', result_content)
         return processing
 
     result_content['Từ chối < 30d'] = "Không"
     rejected = __check_dedup_in_los_rejected(idNumber, mobilePhone)
     if rejected['status'] == False:
-        result_content['Từ chối < 30d'] = acting['message']
+        result_content['Từ chối < 30d'] = rejected['message']
         log_dedup_in_los(applicationID, payload, 'rejected', result_content)
         return rejected
 
