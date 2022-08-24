@@ -49,6 +49,9 @@ class Item(BaseModel):
     loanAmount: int = Field(gt=0, description="Khoản vay phải có")
     emi: int = Field(gt=0, description="Số tiền ước tính hàng tháng")
 
+    ## thông tin agent
+    saleCode: str
+
     @validator('uniqueID')
     def uniqueID_validator(cls, v):
         from helpers.CommonHelper import is_uuid
