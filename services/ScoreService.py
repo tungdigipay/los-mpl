@@ -55,7 +55,7 @@ def process(uniqueID):
     if logic_de['data']['decision'] == "Approve":
         statusID = 10
         note = "Hồ sơ auto approval hoặc CE approve"
-    elif logic_de['data']['decision'] == "Approve":
+    elif logic_de['data']['decision'] == "Manual":
         statusID = 13
         note = "Kết quả DE vào nhóm Precise assessment và đang chờ CE xử lý"
     else:
