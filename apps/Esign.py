@@ -55,13 +55,13 @@ def verify(request):
     data = res['data'][0]
     applicationID = data['LOS_application']['ID']
     idNumberFrontImage = data['LOS_application']['LOS_customer_ocrs'][0]['idNumberFrontImage']
-    # encoded_string = base64.b64encode(requests.get(idNumberFrontImage).content)
+    encoded_string = base64.b64encode(requests.get(idNumberFrontImage).content)
 
     return {
         "status": True,
         "data": {
             "contractFile": data['contractFile'],
-            "idNumberFrontImage": idNumberFrontImage,
+            "idNumberFrontImage": encoded_string,
             "mobilePhone": data['LOS_application']['LOS_customer_profile']['mobilePhone'],
             "uniqueID": data['LOS_application']['uniqueID']
         }
