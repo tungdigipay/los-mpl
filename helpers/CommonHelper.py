@@ -53,3 +53,8 @@ def thirty_days_ago():
     from datetime import datetime, timedelta
     today = datetime. today()
     return today - timedelta(days=30)
+
+def is_email(email):
+    import re
+    regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+    return True if re.fullmatch(regex, email) else False
