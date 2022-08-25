@@ -35,7 +35,7 @@ def process(uniqueID):
         res_relation = __score_relation(relationPhone)
         if res_relation['status'] == False:
             ApplicationService.update_status(application, 8, f"{res_relation['code']}_{res_relation['message']}")
-        return res_relation
+            return res_relation
 
     res_region = __score_region(application)
     if res_region['status'] == False:
@@ -102,7 +102,7 @@ def __score_relation(relationPhone):
         }
 
     count_refused = PrescoreRepository.count_refused_by_phone(mobilePhone=relationPhone)
-    if count_processing > 0:
+    if count_refused > 0:
         return {
             "status": False,
             "message": "Vợ/chồng có hồ sơ BNPL bị từ chối dưới 30 ngày",
