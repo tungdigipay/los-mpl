@@ -127,3 +127,20 @@ def gen_agreementUUID():
     today = datetime.now()
     ran = ''.join(random.choice(string.digits) for _ in range(4))
     return today.strftime("%Y%m%d%H%M%S") + ran
+
+def email(uniqueID, email):
+    application = EsignRepository.detail_for_esign(uniqueID)
+    if application['status'] == False:
+        return application
+
+    if application['data'] == []:
+        return {
+            "status": False,
+            "message": "Hồ sơ không hợp lệ"
+        }
+    application = application['data'][0]
+
+    return {
+        "status": True,
+        "message": "Sent email successfully"
+    }

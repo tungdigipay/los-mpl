@@ -1,6 +1,7 @@
 from pydantic import BaseModel, validator, Field
 from typing import Union
 from uuid import UUID
+from helpers import CommonHelper
 
 class Preparing(BaseModel):
     agreementUUID: str
@@ -34,4 +35,14 @@ class Confirm(BaseModel):
             raise ValueError("Not number")
         if len(v) != 6:
             raise ValueError("Length must be 6")
+        return v
+
+class Email(BaseModel):
+    uniqueID: UUID
+    email: str
+
+    @validator('email')
+    def email_validator(cls, v):
+        if CommonHelper.is_email(v) == False:
+            raise ValueError("Email is invalid")
         return v
