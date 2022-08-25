@@ -117,8 +117,8 @@ def __create_pwd() -> str:
     return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(6))
 
 def __contract_file(application, contract_number):
-    # return "https://s3-sgn09.fptcloud.com/appay.cloudcms/contract_template.pdf"
-    from libraries import CreatePDF, MFast
+    # return "https://s3-sgn09.fptcloud.com/appay.cloudcms/contract_template.pdf" CreatePDF, 
+    from libraries import MFast
     from helpers import CommonHelper
     import requests
 
