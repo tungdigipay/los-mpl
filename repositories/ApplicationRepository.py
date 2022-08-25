@@ -1,4 +1,5 @@
 from libraries import Hasura
+import json
 
 def init(data):
     if data['type'] == "init":
@@ -207,6 +208,7 @@ def detail_by_uniqueID(uniqueID):
     return res
 
 def update_kyc(data):
+    extractData = json.loads(data['extractData'])
     query = """
     mutation update_LOS_customer_ocrs {
         update_LOS_customer_ocrs(
@@ -220,19 +222,9 @@ def update_kyc(data):
         ) {
             affected_rows
         }
-
-        LOS_applications(
-            where: {
-                ID: { _eq: %d }
-            },
-            _set: {
-                statusID: 2
-            }
-        )
     }
     """ % (
-        data['applicationID'], data['faceImage'], data['extractData'].replace('"', '\\"'),
-        data['applicationID']
+        data['applicationID'], data['faceImage'], json.dumps(extractData).replace('"', '\\"')
     )
 
     res = Hasura.process("update_LOS_customer_ocrs", query)
