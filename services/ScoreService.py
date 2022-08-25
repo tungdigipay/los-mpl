@@ -49,6 +49,7 @@ def process(uniqueID):
 
     ma = res_brc['data']['ma']
     logic_de = de_matrix(application, ma)
+
     if logic_de['status'] == False:
         return logic_de
 
@@ -60,7 +61,7 @@ def process(uniqueID):
         note = "Kết quả DE vào nhóm Precise assessment và đang chờ CE xử lý"
     else:
         statusID = 12
-        note = "DGP cus rate %s and CS grade %s" % (logic_de['dgp_rating'], logic_de['cs_grade'])
+        note = "DGP cus rate %s and CS grade %s" % (logic_de['data']['dgp_rating'], logic_de['data']['cs_grade'])
     
     ApplicationService.update_status(application, statusID, note)
 
@@ -72,7 +73,12 @@ def process(uniqueID):
     }
     ScoringReposirity.storage(application, score_repo)
 
-    return EsignService.preparing(application)
+    if statusID == 10:
+        return EsignService.preparing(application)
+    return {
+        "status": True,
+        "message": note
+    }
 
 def detail_by_appID(uniqueID):
     query = """
@@ -142,7 +148,7 @@ def business_rule_check(application):
 
 def de_matrix(application, ma):
     dgp_rating = __dgp_rating(application, ma)
-    cs_grade = __cs_grade(application)
+    cs_grade, cs_group = __cs_grade(application)
 
     dgp_index = marks.index(dgp_rating)
     cs_index = marks.index(cs_grade)
@@ -186,7 +192,7 @@ def __dgp_rating(application, ma):
     birthday = application['LOS_customer']['dateOfBirth']
     age = calc_density("age", __dgp_age(birthday))
     employment = calc_density("employment", application['LOS_master_employee_type']['score'])
-    marital = calc_density("marital", application['LOS_master_marital_status']['score'])
+    marital = calc_density("marital", application['LOS_customer_profile']['LOS_master_marital_status']['score'])
     gender = calc_density("gender", application['LOS_customer']['LOS_master_gender']['score'])
     product = calc_density("product", __dgp_product(application))
     ma_score = calc_density("ma", __ma_score(ma))
