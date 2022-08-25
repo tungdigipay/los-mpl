@@ -231,6 +231,7 @@ def calc_ma(application):
 
 def calc_expense(application):
     minimum_expense = application['LOS_customer_profile']['current_LOS_master_location_district']['minimumExpenseRegion']
+    minimum_expense = 0 if minimum_expense == None else minimum_expense
     max_expense = max(application['monthlyExpenses'], minimum_expense)
     obligation = __loan_fi(application) + minimum_expense
     return max(max_expense, obligation)
