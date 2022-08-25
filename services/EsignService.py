@@ -121,7 +121,8 @@ def __contract_file(application, contract_number):
     # return "https://s3-sgn09.fptcloud.com/appay.cloudcms/contract_template.pdf" CreatePDF, 
     from libraries import MFast
     from helpers import CommonHelper
-    import requests
+    import requests, random
+    from datetime import datetime
 
     LOS_customer_profile = application['LOS_customer_profile']
     loanAmount = application['loanAmount']
@@ -178,9 +179,12 @@ def __contract_file(application, contract_number):
         ]
     }
 
-    file_name = f"contract_{contract_number}.pdf"
+    ran = ''.join(random.choice(string.digits) for _ in range(4))
+    today = datetime.now()
+    contractDate = today.strftime("%Y-%m-%d")
+    file_name = f"contract_{contract_number}_{ran}.pdf"
     res = MFast.process("contract_file", "POST", {
-        "contractDate": "2022-08-01",
+        "contractDate": contractDate,
         "fullName": fullName,
         "gender": gender,
         "loanAmount": '{0:,}'.format(loanAmount),

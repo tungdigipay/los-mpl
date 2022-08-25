@@ -91,7 +91,7 @@ def request_otp(request):
         "idNumberFrontImage": application['LOS_customer_ocrs'][0]['idNumberFrontImage'],
         "idNumberBackImage": application['LOS_customer_ocrs'][0]['idNumberBackImage'],
         "contractFile": application['LOS_application_esign']['contractFile'],
-        "contractFileName": "sample.pdf"
+        "contractFileName": f"agreementUUID.pdf"
     }
     prepare = EsignFPT.prepareCertificateForSignCloud(agreementUUID, data)
     if prepare['status'] == False:
@@ -107,7 +107,7 @@ def request_otp(request):
         "billCode": sign['data']['billCode']
     })
 
-    # SmsSevice.esign(application['LOS_customer_profile']['mobilePhone'], sign['data']['notificationMessage'])
+    SmsSevice.esign(application['LOS_customer_profile']['mobilePhone'], sign['data']['notificationMessage'])
 
     return {
         "status": True,
