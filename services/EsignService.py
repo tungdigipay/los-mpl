@@ -178,18 +178,31 @@ def __contract_file(application, contract_number):
         ]
     }
 
+    file_name = f"contract_{contract_number}.pdf"
     res = MFast.process("contract_file", "POST", {
+        "contractDate": "2022-08-01",
         "fullName": fullName,
-        "gender": gender
+        "gender": gender,
+        "loanAmount": '{0:,}'.format(loanAmount),
+        "loanAmountText": CommonHelper.number_to_text(loanAmount),
+        "dateOfBirth": dateOfBirth,
+        "idNumber": idNumber,
+        "idNumber_dateOfIssue": idNumber_dateOfIssue,
+        "idNumber_issuePlace": idNumber_dateOfIssue,
+        "marital": marital,
+        "address": address,
+        "ins_amount": '{0:,}'.format(ins_amount),
+        "file_name": file_name,
+        "productName": "TRA GOP VOUCHER GOTIT 0%"
     })
 
-    path = "./files/ocr"
+    path = "./files/esign"
     Path(path).mkdir(parents=True, exist_ok=True)
-    contract = f"{path}/contract_{contract_number}.pdf"
+    contract = f"{path}/{file_name}"
     response = requests.get(res['data']['file'])
     open(contract, "wb").write(response.content)
 
-    return S3.upload(contract, f"contract_{contract_number}.pdf")
+    return S3.upload(contract, file_name)
     return res
     template = "files/esign/contract_template.pdf"
     output = f"files/esign/contract_{contract_number}.pdf"
