@@ -32,7 +32,7 @@ def process(uniqueID):
 
     customer_profile = application['LOS_customer_profile']
     if customer_profile['reference1Relationship'] == 1 or ['reference2Relationship'] == 1:
-        relationPhone = customer_profile['reference2Phone'] if customer_profile['reference1Relationship'] == 1 else customer_profile['reference2Phone']
+        relationPhone = customer_profile['reference1Phone'] if customer_profile['reference1Relationship'] == 1 else customer_profile['reference2Phone']
         res_relation = __score_relation(relationPhone)
         if res_relation['status'] == False:
             ApplicationService.update_status(application, 8, f"{res_relation['code']}_{res_relation['message']}")

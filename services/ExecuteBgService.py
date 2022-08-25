@@ -20,4 +20,7 @@ def scoring_log(uniqueID):
 def postback(uniqueID):
     pool = Pool(1)
     pool.apply_async(requests.get, [f'{base_url}/postback/status?uniqueID={uniqueID}'])
-    pass
+
+def delivery(uniqueID, action):
+    pool = Pool(1)
+    pool.apply_async(requests.get, [f'{base_url}/delivery/{action}?uniqueID={uniqueID}'])
