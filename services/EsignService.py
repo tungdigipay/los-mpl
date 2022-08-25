@@ -1,6 +1,6 @@
 from repositories import OtpRepository, EsignRepository
 from services import SmsSevice
-from libraries import Hasura
+from libraries import Hasura, S3
 import random, string
 
 def preparing(application):
@@ -8,15 +8,17 @@ def preparing(application):
 
     note = "Đã sinh hợp đồng và chờ khách hàng ký"
     esignPwd = __create_pwd()
-    __update_application(application, {
+    res = __update_application(application, {
         "statusID": 14,
         "note": note,
         "contractNumber": contract_number
     })
+    application = res['data']['update_LOS_applications_by_pk']
 
+    contractFile = __contract_file(application, contract_number)
     EsignRepository.storage(application, {
         'esignPwd': esignPwd,
-        "contractFile": "https://s3-sgn09.fptcloud.com/appay.cloudcms/contract_template.pdf"
+        "contractFile": contractFile
     })
 
     __send_sms(application, contract_number, esignPwd)
@@ -60,20 +62,40 @@ def __update_application(application, data):
             _set: { %s }
         ) {
             ID
+            LOS_customer {
+                fullName
+                LOS_master_gender {
+                    label
+                }
+                dateOfBirth
+                idNumber
+            }
+            LOS_customer_profile {
+                idNumber_dateOfIssue
+                idNumber_issuePlace
+                mobilePhone
+                LOS_master_marital_status {
+                    label
+                }
+                permanentAddressDetail
+                permanent_LOS_master_location_ward {
+                    name
+                }
+                permanent_LOS_master_location_district {
+                    name
+                }
+                permanent_LOS_master_location_province {
+                    name
+                }
+            }
+            loanTenor
+            loanAmount
         }
     }
     """ % (appID, objects)
 
     res = Hasura.process("m_update_LOS_applications_by_pk", query)
-    if res['status'] == False:
-        return {
-            "status": False,
-            "message": res['message']
-        }
-
-    return {
-        "status": True
-    }
+    return res
 
 def create_objects(data) -> str:
     objects = ""
@@ -93,3 +115,68 @@ def __send_sms(application, contract_number, esignPwd):
 
 def __create_pwd() -> str:
     return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(6))
+
+def __contract_file(application, contract_number):
+    # return "https://s3-sgn09.fptcloud.com/appay.cloudcms/contract_template.pdf"
+    from libraries import CreatePDF
+    from helpers import CommonHelper
+
+    LOS_customer_profile = application['LOS_customer_profile']
+    loanAmount = application['loanAmount']
+    fullName = application['LOS_customer']['fullName']
+    gender = application['LOS_customer']['LOS_master_gender']['label']
+    dateOfBirth = application['LOS_customer']['dateOfBirth']
+    idNumber = application['LOS_customer']['idNumber']
+    idNumber_dateOfIssue = LOS_customer_profile['idNumber_dateOfIssue']
+    idNumber_issuePlace = LOS_customer_profile['idNumber_issuePlace']
+    marital = "" if LOS_customer_profile['LOS_master_marital_status'] == None else LOS_customer_profile['LOS_master_marital_status']['label']
+    
+    if LOS_customer_profile['permanentAddressDetail'] == None:
+        address = ""
+    else:
+        address = LOS_customer_profile['permanentAddressDetail'] + ", "
+    address += LOS_customer_profile['permanent_LOS_master_location_ward']['name'] + ", "
+    address += LOS_customer_profile['permanent_LOS_master_location_district']['name'] + ", "
+    address += LOS_customer_profile['permanent_LOS_master_location_province']['name']
+
+    if idNumber_issuePlace == "CỤC TRƯỞNG CỤC CẢNH SÁT QUẢN LÝ HÀNH CHÍNH VỀ TRẬT TỰ XÃ HỘI":
+        idNumber_issuePlace = "CTCCSQLHCVTTXH"
+
+    ins_amount = int(loanAmount * 5/ 100)
+
+    data = {
+        0: [
+            [244, 762, "02"],
+            [310, 762, "08"],
+            [373, 762, "22"],
+            [210, 455, fullName],
+        ],
+        1: [
+            [180, 683, fullName],
+            [180, 666, gender],
+            [420, 666, dateOfBirth],
+
+            [180, 648, idNumber],
+            [420, 648, idNumber_dateOfIssue],
+
+            [180, 630, idNumber_issuePlace],
+            [420, 630, marital],
+
+            [180, 613, address],
+
+            [65, 310, "TRA GOP VOUCHER GOTIT 0%"],
+        ],
+        2: [
+            [195, 290, '{0:,}'.format(loanAmount)],
+            [195, 269, CommonHelper.number_to_text(loanAmount)],
+            [295, 249, '{0:,}'.format(ins_amount)],
+        ],
+        11: [
+            [137, 505, fullName],
+        ]
+    }
+
+    template = "files/esign/contract_template.pdf"
+    output = f"files/esign/contract_{contract_number}.pdf"
+    contract = CreatePDF.gen(template, output, data)
+    return S3.upload(contract, f"contract_{contract_number}.pdf")

@@ -8,11 +8,6 @@ def preparing(agreementUUID):
     return EsignFPT.prepareFileForSignCloud(agreementUUID)
 
 def confirm(request):
-    return {
-            "status": True,
-            "message": "Thành công"
-        }
-        
     application = EsignRepository.detail_for_esign(request.uniqueID)
     if application['status'] == False:
         return application
@@ -56,11 +51,12 @@ def verify(request):
     applicationID = data['LOS_application']['ID']
     idNumberFrontImage = data['LOS_application']['LOS_customer_ocrs'][0]['idNumberFrontImage']
     encoded_string = base64.b64encode(requests.get(idNumberFrontImage).content)
+    contractFile_string = base64.b64encode(requests.get(data['contractFile']).content)
 
     return {
         "status": True,
         "data": {
-            "contractFile": data['contractFile'],
+            "contractFile": contractFile_string,
             "idNumberFrontImage": encoded_string,
             "mobilePhone": data['LOS_application']['LOS_customer_profile']['mobilePhone'],
             "uniqueID": data['LOS_application']['uniqueID']
