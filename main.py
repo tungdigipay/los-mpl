@@ -127,3 +127,19 @@ async def delivery_order(action: str, uniqueID: UUID):
     return {
         "detail": "No action"
     }
+
+@app.get("/pdf")
+async def pdf():
+    # from helpers import CommonHelper
+    # return CommonHelper.number_to_text(1160000)
+    from services import EsignService
+    application = {"ID": 2}
+    res = EsignService.__update_application(application, {
+        "statusID": 14,
+        "note": "Đã sinh hợp đồng và chờ khách hàng ký",
+        "contractNumber": "112208250002"
+    })
+    application = res['data']['update_LOS_applications_by_pk']
+
+    contractFile = EsignService.__contract_file(application, "112208250002")
+    return contractFile
