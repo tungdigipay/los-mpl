@@ -30,9 +30,8 @@ def process(uniqueID):
         ApplicationService.update_status(application, 8, f"{res_income['code']}_{res_income['message']}")
         return res_income
 
-    customer_profile = application['LOS_customer_profile']
-    if customer_profile['reference1Relationship'] == 1 or ['reference2Relationship'] == 1:
-        relationPhone = customer_profile['reference1Phone'] if customer_profile['reference1Relationship'] == 1 else customer_profile['reference2Phone']
+    if application['reference1Relationship'] == 1 or ['reference2Relationship'] == 1:
+        relationPhone = application['reference1Phone'] if application['reference1Relationship'] == 1 else application['reference2Phone']
         res_relation = __score_relation(relationPhone)
         if res_relation['status'] == False:
             ApplicationService.update_status(application, 8, f"{res_relation['code']}_{res_relation['message']}")
