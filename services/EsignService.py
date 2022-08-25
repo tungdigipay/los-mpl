@@ -2,6 +2,7 @@ from repositories import OtpRepository, EsignRepository
 from services import SmsSevice
 from libraries import Hasura, S3
 import random, string
+from pathlib import Path
 
 def preparing(application):
     contract_number = __gen_contract_number(application)
@@ -181,7 +182,13 @@ def __contract_file(application, contract_number):
         "fullName": fullName,
         "gender": gender
     })
-    contract = requests.get(res['data']['file']).content
+
+    path = "./files/ocr"
+    Path(path).mkdir(parents=True, exist_ok=True)
+    contract = f"{path}/contract_{contract_number}.pdf"
+    response = requests.get(res['data']['file'])
+    open(contract, "wb").write(response.content)
+
     return S3.upload(contract, f"contract_{contract_number}.pdf")
     return res
     template = "files/esign/contract_template.pdf"
