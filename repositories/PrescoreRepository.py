@@ -63,7 +63,7 @@ def count_loan_by_phone(mobilePhone):
     return res['data']['LOS_applications_aggregate']['aggregate']['count']
 
 def count_processing_by_phone(mobilePhone):
-    processing_status_ids = CommonHelper.list_status_for_processing
+    processing_status_ids = CommonHelper.list_status_for_processing()
     status_ids = [str(element) for element in processing_status_ids]
     query = """
     query count_loan_by_phone {
