@@ -118,8 +118,9 @@ def __create_pwd() -> str:
 
 def __contract_file(application, contract_number):
     # return "https://s3-sgn09.fptcloud.com/appay.cloudcms/contract_template.pdf"
-    from libraries import CreatePDF
+    from libraries import CreatePDF, MFast
     from helpers import CommonHelper
+    import requests
 
     LOS_customer_profile = application['LOS_customer_profile']
     loanAmount = application['loanAmount']
@@ -176,6 +177,13 @@ def __contract_file(application, contract_number):
         ]
     }
 
+    res = MFast.process("contract_file", "POST", {
+        "fullName": fullName,
+        "gender": gender
+    })
+    contract = requests.get(res['data']['file']).content
+    return S3.upload(contract, f"contract_{contract_number}.pdf")
+    return res
     template = "files/esign/contract_template.pdf"
     output = f"files/esign/contract_{contract_number}.pdf"
     contract = CreatePDF.gen(template, output, data)
