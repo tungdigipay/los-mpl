@@ -91,6 +91,9 @@ def __update_application(application, data):
             }
             loanTenor
             loanAmount
+            LOS_product {
+                name
+            }
         }
     }
     """ % (appID, objects)
@@ -133,6 +136,7 @@ def __contract_file(application, contract_number):
     idNumber_dateOfIssue = LOS_customer_profile['idNumber_dateOfIssue']
     idNumber_issuePlace = LOS_customer_profile['idNumber_issuePlace']
     marital = "" if LOS_customer_profile['LOS_master_marital_status'] == None else LOS_customer_profile['LOS_master_marital_status']['label']
+    productName = application['LOS_product']['name']
     
     if LOS_customer_profile['permanentAddressDetail'] == None:
         address = ""
@@ -167,7 +171,7 @@ def __contract_file(application, contract_number):
 
             [180, 613, address],
 
-            [65, 310, "TRA GOP VOUCHER GOTIT 0%"],
+            [65, 310, productName],
         ],
         2: [
             [195, 290, '{0:,}'.format(loanAmount)],
@@ -197,7 +201,7 @@ def __contract_file(application, contract_number):
         "address": address,
         "ins_amount": '{0:,}'.format(ins_amount),
         "file_name": file_name,
-        "productName": "TRA GOP VOUCHER GOTIT 0%"
+        "productName": productName
     })
 
     path = "./files/esign"
@@ -207,8 +211,3 @@ def __contract_file(application, contract_number):
     open(contract, "wb").write(response.content)
 
     return S3.upload(contract, file_name)
-    return res
-    template = "files/esign/contract_template.pdf"
-    output = f"files/esign/contract_{contract_number}.pdf"
-    contract = CreatePDF.gen(template, output, data)
-    return S3.upload(contract, f"contract_{contract_number}.pdf")

@@ -5,7 +5,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from apps import OTP, Files, Customers, Applications, Kyc, Hyperverge, Prescore, Esign, Score, Postback, Delivery
+from apps import OTP, Files, Customers, Applications, Kyc, Hyperverge, Prescore, Esign, Score, Postback, Delivery, Activition
 from models import OtpModel, OcrModel, FileModel, ApplicationModel, KycModel, GraphqlModel, EsignModel
 
 from services import ApplicationService
@@ -128,18 +128,7 @@ async def delivery_order(action: str, uniqueID: UUID):
         "detail": "No action"
     }
 
-@app.get("/pdf")
-async def pdf():
-    # from helpers import CommonHelper
-    # return CommonHelper.number_to_text(1160000)
-    from services import EsignService
-    application = {"ID": 2}
-    res = EsignService.__update_application(application, {
-        "statusID": 14,
-        "note": "Đã sinh hợp đồng và chờ khách hàng ký",
-        "contractNumber": "112208250002"
-    })
-    application = res['data']['update_LOS_applications_by_pk']
-
-    contractFile = EsignService.__contract_file(application, "112208250002")
-    return contractFile
+@app.get("/activition/{action}")
+async def activition(action: str, uniqueID: UUID):
+    if action == "process":
+        return Activition.process(uniqueID)

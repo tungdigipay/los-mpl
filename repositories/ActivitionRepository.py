@@ -9,13 +9,6 @@ def detail_application(uniqueID):
             ID
             uniqueID
             statusID
-            LOS_customer {
-                fullName
-            }
-            LOS_customer_profile {
-                mobilePhone
-                email
-            }
         }
     }
     """ % (uniqueID)

@@ -31,3 +31,57 @@ def process(slug, type, payload):
             "status": False,
             "message": "Đã có lỗi dịch vụ từ DGP"
         }
+
+def __log(data, logID=None):
+    objects = create_objects(data)
+    if logID == None:
+        query = """
+        mutation m_LOG_mfast_service{
+            insert_LOG_mfast_service_one(
+                object: {
+                    %s
+                }
+            ) {
+                ID
+            }
+        }
+        """ % (
+            objects
+        )
+        variables = {
+            "payload": data['payload']
+        }
+    else:
+        query = """
+        mutation m_LOG_mfast_service ($response: ) {
+            update_LOG_mfast_service_by_pk(
+                pk_columns: { ID: %d }, _set: { 
+                    response: $response
+                }
+            ) {
+                ID
+            }
+        }
+        """ % (
+            logID, objects
+        )
+        variables = {
+            "response": data['response']
+        }
+    res = Hasura.process("m_LOG_mfast_service", query, variables)
+    if res['status'] == False:
+        return res
+
+    return {
+        "status": True,
+        "data": {
+            "ID": ID
+        }
+    }
+
+def create_objects(data):
+    objects = ""
+    if 'url' in data:
+        objects += 'url: "%s", ' % (data['url'])
+
+    return objects

@@ -113,7 +113,7 @@ def request_otp(request):
         "status": True,
         "data": {
             "uniqueID": request.uniqueID,
-            "sms": sign['data']['notificationMessage']
+            # "sms": sign['data']['notificationMessage']
         }
     }
 

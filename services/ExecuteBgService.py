@@ -24,3 +24,7 @@ def postback(uniqueID):
 def delivery(uniqueID, action):
     pool = Pool(1)
     pool.apply_async(requests.get, [f'{base_url}/delivery/{action}?uniqueID={uniqueID}'])
+
+def activition(uniqueID):
+    pool = Pool(1)
+    pool.apply_async(requests.get, [f'{base_url}/activition/process/?uniqueID={uniqueID}'])

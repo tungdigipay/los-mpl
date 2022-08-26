@@ -15,5 +15,8 @@ def delivery(mobilePhone, brandName, eVoucher):
 def esign(mobilePhone, sms_out):
     return __process(mobilePhone, sms_out)
 
+def activition(mobilePhone, sms_out):
+    return __process(mobilePhone, sms_out)
+
 def __process(mobilePhone, sms_out):
     return Sms.process(mobilePhone, sms_out)
