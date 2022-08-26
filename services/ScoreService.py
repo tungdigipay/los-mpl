@@ -70,6 +70,7 @@ def process(uniqueID):
         "dgp_rating": logic_de['data']['dgp_rating'],
         "cs_grade": logic_de['data']['cs_grade'],
         "decision_mark": logic_de['data']['grade'],
+        "credit_score": logic_de['data']['credit_score']
     }
     ScoringReposirity.storage(application, score_repo)
 
@@ -148,7 +149,7 @@ def business_rule_check(application):
 
 def de_matrix(application, ma):
     dgp_rating = __dgp_rating(application, ma)
-    cs_grade, cs_group = __cs_grade(application)
+    cs_grade, cs_group, cs_score = __cs_grade(application)
 
     dgp_index = marks.index(dgp_rating)
     cs_index = marks.index(cs_grade)
@@ -163,7 +164,8 @@ def de_matrix(application, ma):
             "grade": grade,
             "decision": decision,
             "dgp_rating": dgp_rating,
-            "cs_grade": cs_grade
+            "cs_grade": cs_grade,
+            "credit_score": cs_score
         }
     }
 
@@ -199,8 +201,9 @@ def __dgp_rating(application, ma):
     agent = calc_density("agent", 1.5)
     group_customer = calc_density("group_customer", 2.5)
 
-    score = age + employment + marital + gender + product + ma_score
-
+    # print (f"{age} + {employment} + {marital} + {gender} + {product} + {ma_score}")
+    score = age + employment + marital + gender + product + ma_score + agent + group_customer
+    # return "A"
     if score >= 2.65:
         return "A+"
     if score >= 2.54:
@@ -216,19 +219,19 @@ def __dgp_rating(application, ma):
 def __cs_grade(application):
     cs = __credit_score(application)
     if cs <= 0.46:
-        return "D", "Blackzone"
+        return "D", "Blackzone", cs
     if cs <= 0.57:
-        return "C", "VH Risk"
+        return "C", "VH Risk", cs
     if cs <= 0.63:
-        return "B", "High Risk"
+        return "B", "High Risk", cs
     if cs <= 0.75:
-        return "B+", "Med Risk"
+        return "B+", "Med Risk", cs
     if cs <=  0.97:
-        return "A", "Low Risk"
+        return "A", "Low Risk", cs
     if cs > 0.97:
-        return "A+", "Low Risk"
+        return "A+", "Low Risk", cs
 
-    return "D", "Blackzone"
+    return "D", "Blackzone", cs
 
 def calc_ma(application):
     income = calc_income(application)
