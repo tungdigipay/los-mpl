@@ -1,5 +1,6 @@
+from helpers.CommonHelper import downloadFile
 from libraries import EsignFPT
-from services import EsignService, SmsSevice, ApplicationService
+from services import EsignService, SmsSevice, ApplicationService, EmailService
 from repositories import EsignRepository
 import base64, requests
 
@@ -8,16 +9,11 @@ def preparing(agreementUUID):
     return EsignFPT.prepareFileForSignCloud(agreementUUID)
 
 def confirm(request):
-    application = EsignRepository.detail_for_esign(request.uniqueID)
-    if application['status'] == False:
-        return application
+    detail = EsignRepository.detail_for_esign(request.uniqueID)
+    if detail['status'] == False:
+        return detail
+    application = detail['data']
 
-    if application['data'] == []:
-        return {
-            "status": False,
-            "message": "Hồ sơ không hợp lệ"
-        }
-    application = application['data'][0]
     agreementUUID = application['LOS_application_esign']['agreementUUID']
     BillCode = application['LOS_application_esign']['billCode']
     otpCode = request.otpCode
@@ -64,16 +60,10 @@ def verify(request):
     }
 
 def request_otp(request):
-    application = EsignRepository.detail_for_esign(request.uniqueID)
-    if application['status'] == False:
-        return application
-
-    if application['data'] == []:
-        return {
-            "status": False,
-            "message": "Hồ sơ không hợp lệ"
-        }
-    application = application['data'][0]
+    detail = EsignRepository.detail_for_esign(request.uniqueID)
+    if detail['status'] == False:
+        return detail
+    application = detail['data']
 
     if application['LOS_application_esign']['agreementUUID'] == None:
         agreementUUID = gen_agreementUUID()
@@ -125,16 +115,16 @@ def gen_agreementUUID():
     return today.strftime("%Y%m%d%H%M%S") + ran
 
 def email(uniqueID, email):
-    application = EsignRepository.detail_for_esign(uniqueID)
-    if application['status'] == False:
-        return application
+    detail = EsignRepository.detail_for_esign(uniqueID)
+    if detail['status'] == False:
+        return detail
+    application = detail['data']
 
-    if application['data'] == []:
-        return {
-            "status": False,
-            "message": "Hồ sơ không hợp lệ"
-        }
-    application = application['data'][0]
+    # url = "https://s3-sgn09.fptcloud.com/bnpl.profiles/contract_112208260001_0969.pdf"
+    url = application['LOS_application_esign']['contractFile']
+    file = downloadFile(url, "./files/email")
+    fullName = application['LOS_customer']['fullName']
+    EmailService.process(email, fullName, file)
 
     return {
         "status": True,

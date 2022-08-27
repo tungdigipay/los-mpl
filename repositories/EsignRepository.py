@@ -160,7 +160,13 @@ def detail_for_esign(uniqueID):
     if res['status'] == False:
         return res
 
+    if res['data']['LOS_applications'] == []:
+        return {
+            "status": False,
+            "data": "Hồ sơ không hợp lệ"
+        }
+
     return {
         "status": True,
-        "data": res['data']['LOS_applications']
+        "data": res['data']['LOS_applications'][0]
     }

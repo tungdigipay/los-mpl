@@ -98,3 +98,20 @@ def number_to_text(num):
         else: return number_to_text(num // b) + ' tỷ, ' + number_to_text(num % b) + " đồng"
 
     raise AssertionError('num is too large: %s' % str(num))
+
+
+def downloadFile(url, path):
+    from pathlib import Path
+    import requests
+    Path(path).mkdir(parents=True, exist_ok=True)
+    file_name = get_filename(url)
+    file = f"{path}/{file_name}"
+    response = requests.get(url)
+    open(file, "wb").write(response.content)
+    return file
+
+def get_filename(url):
+    import os
+    from urllib.parse import urlparse
+    a = urlparse(url)
+    return os.path.basename(a.path)
