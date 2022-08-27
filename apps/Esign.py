@@ -115,15 +115,15 @@ def gen_agreementUUID():
     return today.strftime("%Y%m%d%H%M%S") + ran
 
 def email(uniqueID, email):
-    # detail = EsignRepository.detail_for_esign(uniqueID)
-    # if detail['status'] == False:
-    #     return detail
-    # application = detail['data']
+    detail = EsignRepository.detail_for_esign(uniqueID)
+    if detail['status'] == False:
+        return detail
+    application = detail['data']
 
-    url = "https://s3-sgn09.fptcloud.com/bnpl.profiles/contract_112208260001_0969.pdf"
-    fullName = "Thanh Tùng"
-    # fullName = application['LOS_customer']['fullName']
-    # url = application['LOS_application_esign']['contractFile']
+    # url = "https://s3-sgn09.fptcloud.com/bnpl.profiles/contract_112208260001_0969.pdf"
+    # fullName = "Thanh Tùng"
+    fullName = application['LOS_customer']['fullName']
+    url = application['LOS_application_esign']['contractFile']
     file = downloadFile(url, "./files/email")
     EmailService.process(email, fullName, file)
 
