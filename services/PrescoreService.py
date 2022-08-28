@@ -124,7 +124,8 @@ def __score_region(application):
         "status": True
     }
 
-def __score_phv():
+def __score_phv(application):
+    ApplicationService.check_mobilephone(application['ID'], application['LOS_customer_profile']['mobilePhone'])
     return {
         "status": True
     }

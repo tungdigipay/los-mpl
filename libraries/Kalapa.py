@@ -26,38 +26,22 @@ def process(slug, type, payload, function):
     if type == "GET":
         url += "?" + urlencode(payload)
 
+    logID = __insert(url, function, payload)
     response = requests.request(type, url, headers=headers, data=payload)
-    query = """
-        mutation m_log_kalapa($payload: jsonb = "", $response: jsonb = "") { 
-            insert_LOG_kalapa(
-                objects: {
-                    url: "%s", 
-                    payload: $payload, 
-                    response: $response,
-                    function: "%s"
-                }
-            ) { 
-                returning { ID } 
-            } 
-        }
-    """ % (url, function)
-    response = json.loads(response.text)
-    variables = {
-        "payload": payload,
-        "response": response
-    }
-    res = Hasura.process("m_log_kalapa", query, variables)
 
     try:
+        response = json.loads(response.text)
+        __update(logID, response)
         return {
             "status": True,
             "data": response,
-            "logID": res['data']['insert_LOG_kalapa']['returning'][0]['ID']
+            "logID": logID
         }
     except ValueError as e:
         return {
             "status": False,
-            "message": response
+            "message": response.text,
+            "logID": logID
         }
 
 def check_exist(payload, function):
@@ -87,3 +71,43 @@ def check_exist(payload, function):
         return []
 
     return res['data']['LOG_kalapa'][0]
+
+def __insert(url, function, payload):
+    variables = {
+        "payload": payload
+    }
+    query = """
+        mutation m_log_kalapa($payload: jsonb = "") { 
+            insert_LOG_kalapa(
+                objects: {
+                    url: "%s", 
+                    payload: $payload, 
+                    function: "%s"
+                }
+            ) { 
+                returning { ID } 
+            } 
+        }
+    """ % (url, function)
+
+    res = Hasura.process("m_log_kalapa", query, variables)
+    return res['data']['insert_LOG_kalapa']['returning'][0]['ID']
+
+def __update(logID, response):
+    variables = {
+        "response": response
+    }
+    query = """
+    mutation m_log_kalapa($response: jsonb = "") {
+        update_LOG_kalapa_by_pk(
+            pk_columns: { ID: %d }, 
+            _set: {
+                response: $response
+            }
+        ) {
+            ID
+        }
+    }
+    """ % (logID)
+    res = Hasura.process("m_log_kalapa", query, variables)
+    return res

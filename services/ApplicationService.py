@@ -2,27 +2,150 @@ from libraries import Kalapa, MFast, Hasura
 from services import SmsSevice, ExecuteBgService, ScoringLogService
 from helpers import CommonHelper
 
-def credit_score(idNumber, mobilePhone):
-    return Kalapa.process("user-profile/scoring/social_fraud", "GET", {
+def credit_score(applicationID, idNumber, mobilePhone):
+    payload = {
         "id": idNumber,
         "mobile": mobilePhone
-    }, "credit_score")
+    }
+    type = "credit_score"
+    resultContent = []
+    result = ""
 
-def check_mobilephone(mobilePhone):
-    return Kalapa.process("user-profile/mobile2id/get/", "GET", {
-        "mobile": mobilePhone
-    }, "check_mobilephone")
+    res = Kalapa.process("user-profile/scoring/social_fraud", "GET", payload, type)
+    if res ['status'] == True:
+        result = "pass"
+        resultContent.append({
+            "score": res['data']['score'],
+            "version": res['data']['version'],
+        })
+    else:
+        result = "rejected"
+        resultContent.append({
+            "message": res['message']
+        })
 
-def social_insurance(idNumber):
-    return Kalapa.process("user-profile/user-jscore/vc/get/", "GET", {
-        "id": idNumber
-    }, "social_insurance")
-
-def mfast_blacklist(idNumber, mobilePhone):
-    return MFast.process("/blacklist", "POST", {
-        "idNumber": idNumber,
-        "mobilePhone": mobilePhone
+    ScoringLogService.record({
+        "applicationID": applicationID,
+        "type": type,
+        "payload": payload,
+        "resultContent": resultContent,
+        "responseData": res,
+        "logServiceID": res['logID'],
+        "label": "Credit Score",
+        "result": result
     })
+
+    return res
+
+def check_mobilephone(applicationID, mobilePhone):
+    payload = {
+        "mobile": mobilePhone
+    }
+    type = "check_mobilephone"
+    resultContent = []
+    result = ""
+
+    res = Kalapa.process("user-profile/mobile2id/get/", "GET", payload, type)
+    if res ['status'] == True:
+        result = "pass"
+        if res['data'] != None:
+            for item in res['data']['ids']:
+                resultContent.append({
+                    "CMND/ CCCD": item['id'],
+                    "Ngày sinh": item['dob'],
+                    "Họ tên": item['name'],
+                    "Địa chỉ": item['address'],
+                })
+        else:
+            result = "rejected"
+            resultContent.append({
+                "message": "No result"
+            })
+    else:
+        result = "rejected"
+        resultContent.append({
+            "message": res['message']
+        })
+
+    ScoringLogService.record({
+        "applicationID": applicationID,
+        "type": type,
+        "payload": payload,
+        "resultContent": resultContent,
+        "responseData": res,
+        "logServiceID": res['logID'],
+        "label": "Telco",
+        "result": result
+    })
+
+    return res
+
+def social_insurance(applicationID, idNumber):
+    payload = {
+        "id": idNumber
+    }
+    resultContent = []
+    res = Kalapa.process("user-profile/user-jscore/vc/get/", "GET", payload, "social_insurance")
+
+    if res['status'] == True :
+        result = "pass"
+        for item in res['data']['sInfos']:
+            resultContent.append({
+                "Tên Công ty": item['companyName'],
+                "Mã Công ty": item['companyCode'],
+                "Thời gian": f"{item['startDate']} đến {item['endDate']}",
+                "Điểm": item['score'],
+            })
+    else:
+        result = "failed"
+        resultContent.append({
+            "message": res['message']
+        })
+
+    ScoringLogService.record({
+        "applicationID": applicationID,
+        "type": "social_insurance",
+        "payload": payload,
+        "resultContent": resultContent,
+        "responseData": res,
+        "logServiceID": res['logID'],
+        "label": "Social Insurance",
+        "result": result
+    })
+
+    return res
+
+def mfast_blacklist(applicationID, idNumber, mobilePhone):
+    payload = {
+        "id": idNumber,
+        "mobile": mobilePhone
+    }
+    type = "dgp_blacklist"
+    resultContent = []
+    result = ""
+
+    res = MFast.process("/blacklist", "POST", payload)
+
+    resultContent.append({
+        "message": res['message']
+    })
+    if res['status'] == True: 
+        result = "pass" 
+    else: 
+        result = "rejected"
+
+    ScoringLogService.record({
+        "applicationID": applicationID, 
+        "result": result, 
+        "type": type, 
+        "label": "DGP Blacklist", 
+        "logServiceID": 0,
+        "payload": payload,
+        "resultContent": resultContent,
+        "responseData": res
+    })
+
+    return res
 
 def mfast_dedup(idNumber, mobilePhone):
     return MFast.process("/dedup", "POST", {
@@ -36,25 +159,28 @@ def dedup_in_los(applicationID, idNumber, mobilePhone):
         "mobilePhone": mobilePhone
     }
     acting = __check_dedup_in_los_active(idNumber, mobilePhone)
-    result_content = {}
+    result_content = []
     
-    result_content['Đã kích hoạt'] = "Chưa"
+    result_content.append({
+        "Đã kích hoạt": "Chưa" if acting['status'] == True else acting['message']
+    })
     if acting['status'] == False:
-        result_content['Đã kích hoạt'] = acting['message']
         log_dedup_in_los(applicationID, payload, 'rejected', result_content)
         return acting
-
-    result_content['Đang hoạt động'] = "Chưa"
+        
     processing = __check_dedup_in_los_processing(idNumber, mobilePhone)
+    result_content.append({
+        "Đang hoạt động": "Chưa" if processing['status'] == True else processing['message']
+    })
     if processing['status'] == False:
-        result_content['Đang hoạt động'] = processing['message']
         log_dedup_in_los(applicationID, payload, 'rejected', result_content)
         return processing
-
-    result_content['Từ chối < 30d'] = "Không"
+        
     rejected = __check_dedup_in_los_rejected(idNumber, mobilePhone)
+    result_content.append({
+        "Từ chối < 30d": "Chưa" if rejected['status'] == True else rejected['message']
+    })
     if rejected['status'] == False:
-        result_content['Từ chối < 30d'] = rejected['message']
         log_dedup_in_los(applicationID, payload, 'rejected', result_content)
         return rejected
 
@@ -251,5 +377,8 @@ def log_dedup_in_los(applicationID, payload, result, result_content):
         "result": result, 
         "type": "dedup_in_house", 
         "label": "Dedup in house", 
-        "logServiceID": 0
-    }, payload, result_content)
+        "logServiceID": 0,
+        "payload": payload,
+        "resultContent": result_content,
+        "responseData": []
+    })

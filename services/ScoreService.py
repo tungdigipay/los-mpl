@@ -341,6 +341,6 @@ def __dgp_product(application):
 def __credit_score(application):
     idNumber = application['LOS_customer']['idNumber']
     mobilePhone = application['LOS_customer_profile']['mobilePhone']
-    res = ApplicationService.credit_score(idNumber, mobilePhone)
+    res = ApplicationService.credit_score(application['ID'], idNumber, mobilePhone)
     data = res['data']
     return data['score']
