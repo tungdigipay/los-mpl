@@ -26,6 +26,8 @@ salary_hour_3 = 17500
 salary_hour_4 = 15600
 marks = ["A+", "A", "B+", "B", "C", "D"]
 
+social_score = 0
+
 def process(uniqueID):
     application = detail_by_appID(uniqueID)
     if application['status'] == False:
@@ -70,7 +72,8 @@ def process(uniqueID):
         "dgp_rating": logic_de['data']['dgp_rating'],
         "cs_grade": logic_de['data']['cs_grade'],
         "decision_mark": logic_de['data']['grade'],
-        "credit_score": logic_de['data']['credit_score']
+        "credit_score": logic_de['data']['credit_score'],
+        "social_score": social_score
     }
     ScoringReposirity.storage(application, score_repo)
 
@@ -302,10 +305,14 @@ def __ins_score(application):
     idNumber = application['LOS_customer']['idNumber']
     res = ApplicationService.social_insurance(idNumber)
     data = res['data']['sInfos']
-    if data == []:
-        return 0
+
+    sc = 0
+    global social_score
+    if data != []:
+        sc = data[0]['score']
     
-    return data[0]['score']
+    social_score = sc
+    return social_score
 
 def __salary_region(application):
     salaryRegion = application['LOS_customer_profile']['current_LOS_master_location_district']['salaryRegion']
