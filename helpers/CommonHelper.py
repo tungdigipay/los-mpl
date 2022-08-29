@@ -121,6 +121,3 @@ def format_money(value, currency='vnđ'):
     result = result.replace(",", ".")
     result += "" if currency == None else currency
     return result
-
-if __name__ == "__main__":
-    print(format_money(1000000, None))

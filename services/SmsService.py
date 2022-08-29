@@ -5,7 +5,11 @@ def approve(mobilePhone, contractNumber, link, esignPwd):
     return __process(mobilePhone, sms_out)
 
 def reject(mobilePhone):
-    sms_out = f"Rat tiec, chua co ho so tra cham phu hop voi de nghi cua Quy khach. Vui long lien he Nhan vien tu van de duoc ho tro. Xin cam on !"
+    sms_out = f"Rat tiec, hien tai MFast khong co khoan tra cham nao phu hop voi nhu cau cua Quy khach. Chan thanh cam on !"
+    return __process(mobilePhone, sms_out)
+
+def cancel(mobilePhone):
+    sms_out = "Rat tiec, chua co ho so tra cham phu hop voi de nghi cua Quy khach. Vui long lien he Nhan vien tu van de duoc ho tro. Xin cam on !"
     return __process(mobilePhone, sms_out)
 
 def delivery(mobilePhone, brandName, eVoucher):

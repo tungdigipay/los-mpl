@@ -1,5 +1,3 @@
-from fastapi import applications
-from repositories import StatusRepository
 from services import StatusService
 from libraries import MFast
 

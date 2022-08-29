@@ -1,6 +1,7 @@
 from libraries import Kalapa, MFast, Hasura
 from services import SmsService, ExecuteBgService, ScoringLogService
 from helpers import CommonHelper
+from apps import Postback
 
 def credit_score(applicationID, idNumber, mobilePhone):
     payload = {
@@ -359,13 +360,17 @@ def update_status(application, statusID, message):
 
     uniqueID = res['data']['update_LOS_applications_by_pk']['uniqueID']
 
-    ## send sms when rejected (canceled/ confused)
+    ## send sms when rejected (canceled/ rejected)
     if statusID in CommonHelper.list_status_for_refused():
         mobilePhone = res['data']['update_LOS_applications_by_pk']['LOS_customer_profile']['mobilePhone']
-        SmsService.reject(mobilePhone)
+        if statusID in CommonHelper.list_status_for_rejected():
+            SmsService.reject(mobilePhone)
+        else:
+            SmsService.cancel(mobilePhone)
 
     ## callback status to mfast via webhook
-    ExecuteBgService.postback(uniqueID=uniqueID)
+    ## ExecuteBgService.postback(uniqueID=uniqueID)
+    Postback.status(uniqueID)
 
     return {
         "status": True
