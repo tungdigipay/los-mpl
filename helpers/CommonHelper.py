@@ -115,3 +115,12 @@ def get_filename(url):
     from urllib.parse import urlparse
     a = urlparse(url)
     return os.path.basename(a.path)
+
+def format_money(value, currency='vnđ'):
+    result = f'{value:,}'
+    result = result.replace(",", ".")
+    result += "" if currency == None else currency
+    return result
+
+if __name__ == "__main__":
+    print(format_money(1000000, None))

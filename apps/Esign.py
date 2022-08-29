@@ -1,6 +1,6 @@
 from helpers.CommonHelper import downloadFile
 from libraries import EsignFPT
-from services import EsignService, SmsSevice, ApplicationService, EmailService
+from services import EsignService, SmsService, ApplicationService, EmailService
 from repositories import EsignRepository
 import base64, requests
 
@@ -97,7 +97,7 @@ def request_otp(request):
         "billCode": sign['data']['billCode']
     })
 
-    SmsSevice.esign(application['LOS_customer_profile']['mobilePhone'], sign['data']['notificationMessage'])
+    SmsService.esign(application['LOS_customer_profile']['mobilePhone'], sign['data']['notificationMessage'])
 
     return {
         "status": True,

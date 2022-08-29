@@ -1,9 +1,11 @@
-from services import ActivitionService, ApplicationService, ExecuteBgService, SmsSevice
+from fastapi import applications
+from services import ActivitionService, ApplicationService, ExecuteBgService, SmsService
 from datetime import datetime
 from libraries import Hasura
+from helpers.CommonHelper import format_money
 
 def process(uniqueID):
-    application = ActivitionService.detail_application(uniqueID=uniqueID)
+    application = detail_application(uniqueID=uniqueID)
     if application == []:
         return {
             "status": False,
@@ -17,7 +19,7 @@ def process(uniqueID):
         }
 
     applicationID = application['ID']
-    res = ApplicationService.update_activition(applicationID)
+    res = update_activition(applicationID)
     application = res['data']
     ## active insurance after activition loan here
     __send_sms(application)
@@ -71,5 +73,46 @@ def __send_sms(application):
     cus_name = application['LOS_customer']['fullName']
     cus_phone = application['LOS_customer_profile']['mobilePhone']
     contractNumber = application['contractNumber']
-    sms_out = f"Chuc mung khoan vay cua QK {cus_name} da duoc kich hoat {contractNumber}."
-    return SmsSevice.activition(cus_phone, sms_out)
+    emi = format_money(application['emi'], 'vnd')
+    dateOfFirstPayment = application['dateOfFirstPayment']
+    phoneSupport = ""
+    emailSupport = "hotro-mpl@mfast.vn"
+    sms_out = f"Xin chuc mung! Ho so tra cham so {contractNumber} cua {cus_name} da hoan tat. Ky thanh toan dau tien: ngay {dateOfFirstPayment} la: {emi}. Ho tro: {phoneSupport} - {emailSupport}"
+    return SmsService.activition(cus_phone, sms_out)
+
+def detail_application(uniqueID):
+    query = """
+    query detail_LOS_applications {
+        LOS_applications(
+            where: { 
+                uniqueID: { _eq: "%s" } 
+            }
+        ) {
+            ID
+            LOS_customer {
+                fullName
+            }
+            emi
+            LOS_customer_profile {
+                mobilePhone
+            }
+            loanTenor
+            statusID
+            dateOfFirstPayment
+        }
+    }
+    """ % (uniqueID)
+    res = Hasura.process("detail_LOS_applications", query)
+    if res['status'] == False:
+        return res
+
+    if res['data']['LOS_applications'] == []:
+        return {
+            "status": False,
+            "message": "Có lỗi hồ hơ"
+        }
+    
+    return {
+        "status": True,
+        "data": res['data']['LOS_applications'][0]
+    }

@@ -130,7 +130,7 @@ def prepareFileForSignCloud(agreementUUID, data):
     signingFileData = _b64encode(requests.get(data['contractFile']).content)
     signingFileName = data['contractFileName']
     mimetype = c.MIMETYPE_PDF
-    smsMessage = '[MPL-CA] Ma xac thuc (OTP) cua Quy khach la {AuthorizeCode}. Vui long dien ma so nay de ky Hop dong Dien Tu va khong cung cap OTP cho bat ky ai'
+    smsMessage = 'Ma xac thuc (OTP) de ky Hop dong Dien Tu cua Quy khach la: {AuthorizeCode}. Chu y khong cung cap ma OTP nay cho bat ky ai.'
     messagingmode = str(c.ASYNCHRONOUS_CLIENTSERVER)
 
     payload = "{"
@@ -278,7 +278,7 @@ def regenerateAuthorizationCodeForSignCloud(agreementUUID):
     timestamp = str(currenttimemillis())
     datatobesign = relyingPartyUser + relyingPartyPassword + relyingPartySignature + timestamp
     pkcs1signature = generatePKCS1Signature(datatobesign)
-    smsmessage = '[MPL-CA] Ma xac thuc (OTP) cua Quy khach la {AuthorizeCode}. Vui long dien ma so nay de ky Hop dong Dien Tu va khong cung cap OTP cho bat ky ai'
+    smsmessage = 'Ma xac thuc (OTP) de ky Hop dong Dien Tu cua Quy khach la: {AuthorizeCode}. Chu y khong cung cap ma OTP nay cho bat ky ai.'
     authorizemethod = str(c.AUTHORISATION_METHOD_SMS)
 
     payload = "{"

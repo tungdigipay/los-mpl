@@ -1,5 +1,5 @@
 from repositories import OtpRepository, EsignRepository
-from services import SmsSevice
+from services import SmsService
 from libraries import Hasura, S3
 import random, string
 from pathlib import Path
@@ -115,7 +115,7 @@ def create_objects(data) -> str:
 def __send_sms(application, contract_number, esignPwd):
     mobilePhone = application['LOS_customer_profile']['mobilePhone']
     link = "https://a.mfast.vn/FM3Eao"
-    SmsSevice.approve(mobilePhone, contract_number, link, esignPwd)
+    SmsService.approve(mobilePhone, contract_number, link, esignPwd)
 
 def __create_pwd() -> str:
     return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(6))
